@@ -1,6 +1,6 @@
 // ── CONSTANTES ─────────────────────────────────────────────
 const RACE_DATE  = new Date('2026-07-12T08:00:00');
-const PLAN_START = new Date('2026-05-26T00:00:00');
+const PLAN_START = new Date('2026-05-25T00:00:00');
 
 // ── AQUECIMENTO & ALONGAMENTO ───────────────────────────────
 const WARMUP = {
