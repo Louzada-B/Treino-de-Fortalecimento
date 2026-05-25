@@ -263,3 +263,21 @@ textarea { resize: vertical; min-height: 72px; }
   .section-grid, .form-grid { grid-template-columns: 1fr; }
   .form-row { grid-template-columns: 1fr; }
 }
+
+/* ── TREINO & REGISTRO UNIFICADO ── */
+.ex-reg-block { border: 1px solid var(--border); border-radius: var(--r-lg); margin-bottom: 10px; overflow: hidden; }
+.ex-reg-header { display: flex; align-items: center; gap: 10px; padding: 12px 1.25rem; background: var(--bg-3); flex-wrap: wrap; }
+.ex-reg-num { font-family: var(--font-head); font-size: 11px; color: var(--text-3); width: 22px; flex-shrink: 0; }
+.ex-reg-info { flex: 1; min-width: 140px; }
+.ex-reg-name { font-size: 13px; font-weight: 500; color: var(--text); }
+.ex-reg-meta { font-size: 11px; color: var(--text-3); margin-top: 1px; }
+.ex-reg-pills { display: flex; gap: 5px; flex-wrap: wrap; }
+
+.series-grid { padding: 10px 1.25rem 12px; }
+.series-col-header { display: grid; grid-template-columns: 36px 1fr 1fr auto; gap: 8px; font-size: 10px; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.06em; padding-bottom: 6px; border-bottom: 1px solid var(--border); margin-bottom: 4px; align-items: center; }
+.series-row { display: grid; grid-template-columns: 36px 1fr 1fr auto; gap: 8px; align-items: center; padding: 5px 0; border-bottom: 1px solid var(--border); }
+.series-row:last-child { border-bottom: none; }
+.series-num { font-family: var(--font-head); font-size: 11px; color: var(--accent); }
+.series-reps, .series-peso { margin: 0; padding: 5px 8px; font-size: 13px; }
+.series-prev { font-size: 11px; color: var(--text-3); white-space: nowrap; min-width: 60px; text-align: right; }
+.prev-label { font-size: 10px; color: var(--text-3); text-align: right; }

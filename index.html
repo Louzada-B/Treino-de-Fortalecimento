@@ -11,7 +11,6 @@
 <body>
 <div class="app">
 
-  <!-- SIDEBAR -->
   <aside class="sidebar">
     <div class="sidebar-brand">
       <div class="brand-initials">BEL</div>
@@ -20,7 +19,6 @@
         <div class="brand-sub">Plano de Fortalecimento</div>
       </div>
     </div>
-
     <div class="race-card">
       <div class="race-tag">PROVA ALVO</div>
       <div class="race-name">NB42k</div>
@@ -32,19 +30,14 @@
       </div>
       <div class="countdown-bar-bg"><div class="countdown-bar-fill" id="countdown-bar"></div></div>
     </div>
-
     <nav class="nav">
       <button class="nav-btn active" data-page="dashboard">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
         Dashboard
       </button>
-      <button class="nav-btn" data-page="treino">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 4v16M18 4v16M4 8h4M16 8h4M4 16h4M16 16h4"/></svg>
-        Plano de Treino
-      </button>
       <button class="nav-btn" data-page="registrar">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
-        Registrar Sessão
+        Treino &amp; Registro
       </button>
       <button class="nav-btn" data-page="historico">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="16" y1="2" x2="16" y2="6"/></svg>
@@ -55,13 +48,11 @@
         Relatório
       </button>
     </nav>
-
     <div class="sidebar-footer">
       <div class="phase-indicator" id="phase-badge">Calculando fase...</div>
     </div>
   </aside>
 
-  <!-- MAIN -->
   <main class="main">
 
     <!-- DASHBOARD -->
@@ -103,73 +94,31 @@
       </div>
     </section>
 
-    <!-- PLANO DE TREINO -->
-    <section class="page" id="page-treino">
-      <div class="page-header"><h1>Plano de Treino</h1></div>
-
-      <div class="treino-tabs">
-        <button class="ttab active" data-treino="A">Treino A — Quadril &amp; Glúteo</button>
-        <button class="ttab" data-treino="B">Treino B — Core &amp; Lombar</button>
-      </div>
-
-      <div id="treino-content"></div>
-    </section>
-
-    <!-- REGISTRAR -->
+    <!-- TREINO & REGISTRO (unificado) -->
     <section class="page" id="page-registrar">
-      <div class="page-header"><h1>Registrar Sessão</h1></div>
-      <div class="form-grid">
-        <div class="card">
-          <div class="form-row">
-            <div class="form-group"><label>Data</label><input type="date" id="reg-date"></div>
-            <div class="form-group"><label>Tipo de sessão</label>
-              <select id="reg-tipo">
-                <option value="A">Treino A — Quadril &amp; Glúteo</option>
-                <option value="B">Treino B — Core &amp; Lombar</option>
-                <option value="skip">Pulei o treino</option>
-              </select>
-            </div>
-          </div>
+      <div class="page-header"><h1>Treino &amp; Registro</h1></div>
 
-          <div id="reg-ex-section">
-            <div class="ex-header-row">
-              <span>Exercício</span><span>Carga</span><span>Séries</span><span>Reps/Tempo</span>
-            </div>
-            <div id="ex-list"></div>
+      <!-- SELEÇÃO DE TIPO -->
+      <div class="card" style="margin-bottom:1rem">
+        <div class="form-row" style="margin-bottom:0">
+          <div class="form-group" style="margin-bottom:0">
+            <label>Data</label>
+            <input type="date" id="reg-date">
           </div>
-
-          <div id="reg-skip-section" style="display:none">
-            <div class="form-group"><label>Motivo (opcional)</label><textarea id="skip-motivo" rows="3" placeholder="Ex: cansaço, agenda cheia, dor..."></textarea></div>
+          <div class="form-group" style="margin-bottom:0">
+            <label>Selecione o treino</label>
+            <select id="reg-tipo">
+              <option value="A">Treino A — Quadril &amp; Glúteo</option>
+              <option value="B">Treino B — Core &amp; Lombar</option>
+              <option value="skip">Pulei o treino</option>
+            </select>
           </div>
-
-          <div class="form-row">
-            <div class="form-group"><label>Duração (min)</label><input type="number" id="reg-duracao" placeholder="Ex: 52" min="1" max="120"></div>
-            <div class="form-group"><label>Como foi?</label>
-              <select id="reg-feeling">
-                <option value="">— opcional —</option>
-                <option value="ótimo">💪 Ótimo</option>
-                <option value="bom">👍 Bom</option>
-                <option value="ok">😐 Ok</option>
-                <option value="pesado">😓 Pesado</option>
-                <option value="horrível">💀 Horrível</option>
-              </select>
-            </div>
-          </div>
-
-          <div class="form-group"><label>Observações / dores / sensações</label><textarea id="reg-obs" rows="3" placeholder="Ex: glúteo esquerdo fraco, lombar ok, joelho sem dor..."></textarea></div>
-
-          <div class="form-actions">
-            <button class="btn btn-primary" id="btn-salvar">Salvar sessão</button>
-            <button class="btn btn-ghost" id="btn-limpar">Limpar</button>
-          </div>
-        </div>
-        <div class="card card-tip" id="tip-card">
-          <div class="tip-label">TREINO SELECIONADO</div>
-          <div class="tip-title" id="tip-title">Treino A</div>
-          <div class="tip-desc" id="tip-desc"></div>
-          <div class="tip-focus" id="tip-focus"></div>
         </div>
       </div>
+
+      <!-- CONTEÚDO DINÂMICO -->
+      <div id="treino-registro-content"></div>
+
     </section>
 
     <!-- HISTÓRICO -->
@@ -215,7 +164,7 @@
   </main>
 </div>
 
-<!-- MODAL DE INSTRUÇÃO -->
+<!-- MODAL -->
 <div class="modal-overlay" id="modal-overlay">
   <div class="modal">
     <div class="modal-header">
@@ -225,7 +174,7 @@
     <div class="modal-body">
       <div class="modal-video-wrap">
         <a id="modal-video-link" href="#" target="_blank" rel="noopener" class="modal-video-btn">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polygon points="5 3 19 12 5 21 5 3"/></svg>
           Ver vídeo no YouTube
         </a>
       </div>
@@ -237,7 +186,7 @@
         <div class="modal-section-label">COMO EXECUTAR</div>
         <ol id="modal-steps" class="modal-steps"></ol>
       </div>
-      <div class="modal-section" id="modal-dica-section">
+      <div class="modal-section">
         <div class="modal-section-label">DICA PARA VOCÊ</div>
         <p id="modal-dica" class="modal-dica"></p>
       </div>
