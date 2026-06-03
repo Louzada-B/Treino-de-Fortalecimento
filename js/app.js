@@ -153,10 +153,19 @@ function renderTreinoRegistro() {
 
   t.exercicios.forEach((id, idx) => {
     const e      = EXERCICIOS_INFO[id];
-    const numSer = parseInt(e.series) || 3;
-    // cargas anteriores
+    const prog   = getProgressao(id);
+    const numSer = prog ? prog.series : (parseInt(e.series) || 3);
     const prevArr = ult?.exercicios?.[id];
     const prev    = Array.isArray(prevArr) ? prevArr : [];
+
+    // badge de recomendação semanal
+    const recBadge = prog ? `
+      <div class="rec-block">
+        <span class="rec-label">SEMANA ${currentWeekNumber()}</span>
+        <span class="rec-carga">${prog.carga_ref}</span>
+        <span class="rec-reps">${prog.series} séries · ${prog.reps}</span>
+        ${prog.obs ? `<span class="rec-obs">${prog.obs}</span>` : ''}
+      </div>` : '';
 
     html += `<div class="ex-reg-block" id="exb-${id}">
       <div class="ex-reg-header">
@@ -166,8 +175,8 @@ function renderTreinoRegistro() {
           <div class="ex-reg-meta">${e.musculos.join(' · ')}</div>
         </div>
         <div class="ex-reg-pills">
-          <span class="ex-pill highlight">${e.series} séries</span>
-          <span class="ex-pill">${e.reps}</span>
+          <span class="ex-pill highlight">${numSer} séries</span>
+          <span class="ex-pill">${prog ? prog.reps : e.reps}</span>
           <span class="ex-pill">${e.descanso} desc.</span>
         </div>
         <button class="btn-info" onclick="openModal('${id}')">
@@ -175,6 +184,7 @@ function renderTreinoRegistro() {
           Como fazer
         </button>
       </div>
+      ${recBadge}
       <div class="series-grid">
         <div class="series-col-header"><span>Série</span><span>Reps</span><span>${e.unidade}</span>${prev.length ? '<span class="prev-label">anterior</span>' : ''}</div>`;
 
@@ -182,7 +192,7 @@ function renderTreinoRegistro() {
       const prevVal = prev[s] || '';
       html += `<div class="series-row">
         <span class="series-num">S${s+1}</span>
-        <input type="number" class="series-reps" id="rep-${id}-${s}" placeholder="${e.reps.split('–')[0] || '—'}" min="1" step="1">
+        <input type="number" class="series-reps" id="rep-${id}-${s}" placeholder="${prog ? prog.reps.split('/')[s] || prog.reps.split('–')[0] || '—' : '—'}" min="1" step="1">
         <input type="number" class="series-peso" id="peso-${id}-${s}" placeholder="${prevVal || '—'}" min="0" step="0.5">
         ${prev.length ? `<span class="series-prev">${prevVal || '—'} ${prevVal ? e.unidade : ''}</span>` : ''}
       </div>`;

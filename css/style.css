@@ -281,3 +281,40 @@ textarea { resize: vertical; min-height: 72px; }
 .series-reps, .series-peso { margin: 0; padding: 5px 8px; font-size: 13px; }
 .series-prev { font-size: 11px; color: var(--text-3); white-space: nowrap; min-width: 60px; text-align: right; }
 .prev-label { font-size: 10px; color: var(--text-3); text-align: right; }
+
+/* ── RECOMENDAÇÃO SEMANAL ── */
+.rec-block {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 1.25rem;
+  background: rgba(212,245,66,0.04);
+  border-bottom: 1px solid rgba(212,245,66,0.12);
+}
+.rec-label {
+  font-size: 9px;
+  font-family: var(--font-head);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--accent);
+  background: rgba(212,245,66,0.1);
+  border-radius: 3px;
+  padding: 2px 7px;
+  flex-shrink: 0;
+}
+.rec-carga {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text);
+}
+.rec-reps {
+  font-size: 11px;
+  color: var(--text-3);
+}
+.rec-obs {
+  width: 100%;
+  font-size: 11px;
+  color: var(--orange);
+  margin-top: 2px;
+}
