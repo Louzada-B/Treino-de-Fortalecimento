@@ -1,5 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
   initNav();
+  initTheme();
   initCountdown();
   initRegistrar();
   initHistorico();
@@ -442,4 +443,14 @@ function closeModal() {
 function setTodayDate() {
   const el=document.getElementById('today-date');
   if(el) el.textContent=new Date().toLocaleDateString('pt-BR',{weekday:'long',day:'2-digit',month:'long',year:'numeric'});
+}
+
+// ── TEMA ─────────────────────────────────────────────────────
+function initTheme() {
+  const saved = localStorage.getItem('runner_tema') || 'dark';
+  if (saved === 'light') document.body.classList.add('light');
+  document.getElementById('theme-toggle').addEventListener('click', () => {
+    const isLight = document.body.classList.toggle('light');
+    localStorage.setItem('runner_tema', isLight ? 'light' : 'dark');
+  });
 }

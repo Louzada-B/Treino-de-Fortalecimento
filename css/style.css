@@ -318,3 +318,81 @@ textarea { resize: vertical; min-height: 72px; }
   color: var(--orange);
   margin-top: 2px;
 }
+
+/* ── TEMA CLARO ── */
+body.light {
+  --bg:        #f5f5f3;
+  --bg-2:      #ffffff;
+  --bg-3:      #efefed;
+  --bg-4:      #e4e4e1;
+  --bg-5:      #d8d8d4;
+  --border:    rgba(0,0,0,0.08);
+  --border-2:  rgba(0,0,0,0.14);
+  --text:      #1a1a18;
+  --text-2:    #5a5a56;
+  --text-3:    #9a9a94;
+  --accent:    #5a8a00;
+  --accent-dim:#3d6000;
+  --blue:      #1a6fc4;
+  --green:     #1a8c50;
+  --orange:    #c47a00;
+  --red:       #c43030;
+}
+
+body.light .race-card { background: #e8f5d0; border-color: rgba(90,138,0,0.2); }
+body.light .card-tip  { background: var(--bg-3); }
+body.light .modal     { background: var(--bg-2); }
+body.light .rec-block { background: rgba(90,138,0,0.06); border-color: rgba(90,138,0,0.15); }
+body.light .warmup-card.warm { background: rgba(196,122,0,0.06); border-color: rgba(196,122,0,0.2); }
+body.light .warmup-card.cool { background: rgba(26,111,196,0.06); border-color: rgba(26,111,196,0.2); }
+body.light .ex-reg-header { background: var(--bg-3); }
+body.light input,
+body.light select,
+body.light textarea { background: var(--bg-3); color: var(--text); }
+body.light .brand-initials { background: var(--accent); color: #fff; }
+body.light .countdown-num { color: var(--accent); }
+body.light .race-tag { color: var(--accent); }
+body.light .adh-val { color: var(--accent); }
+body.light .series-num { color: var(--accent); }
+body.light .rec-label { background: rgba(90,138,0,0.12); color: var(--accent); }
+body.light .prog-fill.fill-a { background: var(--blue); }
+body.light .tag-a { background: rgba(26,111,196,0.12); color: var(--blue); }
+body.light .tag-b { background: rgba(26,140,80,0.12); color: var(--green); }
+body.light .badge-a { background: rgba(26,111,196,0.1); color: var(--blue); }
+body.light .badge-b { background: rgba(26,140,80,0.1); color: var(--green); }
+body.light .btn-primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+body.light .btn-primary:hover { background: var(--accent-dim); border-color: var(--accent-dim); }
+body.light .modal-video-btn { background: rgba(26,111,196,0.08); border-color: rgba(26,111,196,0.2); color: var(--blue); }
+body.light .day-dot.done-a { background: rgba(26,111,196,0.12); border-color: rgba(26,111,196,0.35); color: var(--blue); }
+body.light .day-dot.done-b { background: rgba(26,140,80,0.12); border-color: rgba(26,140,80,0.35); color: var(--green); }
+body.light .ttab.active { border-color: var(--accent); color: var(--accent); background: rgba(90,138,0,0.06); }
+body.light .filter-btn.active { border-color: var(--accent); color: var(--accent); background: rgba(90,138,0,0.05); }
+body.light .nav-btn.active { background: var(--bg-4); color: var(--accent); }
+body.light .fase-tag { color: var(--accent); }
+body.light .tip-label { color: var(--accent); }
+body.light .race-card::before { background: var(--accent); }
+body.light #rel-texto { background: var(--bg-3); }
+
+/* ── BOTÃO DE TEMA ── */
+.theme-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  margin-top: 8px;
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  background: transparent;
+  color: var(--text-3);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.theme-toggle:hover { background: var(--bg-3); color: var(--text); border-color: var(--border-2); }
+.theme-icon-light { display: none; }
+.theme-icon-dark  { display: inline; }
+body.light .theme-icon-light { display: inline; }
+body.light .theme-icon-dark  { display: none; }
