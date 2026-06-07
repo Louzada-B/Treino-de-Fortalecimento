@@ -28,7 +28,7 @@ const PROGRESSAO = {
   a3: [
     { semana:1, series:3, reps:'12',  carga_ref:'40 kg', obs:'Na máquina. Pausa 2 seg no topo.' },
     { semana:2, series:3, reps:'12',  carga_ref:'40 kg', obs:'Consolida a execução antes de aumentar.' },
-    { semana:3, series:3, reps:'12',  carga_ref:'20 kg — consolida execução', obs:'Mantém 20kg. Foca na pausa de 2 seg no topo e contração do glúteo.' },
+    { semana:3, series:3, reps:'10',  carga_ref:'10 kg nas 3 séries', obs:'⚠️ Dor na primeira sessão. Reduz para 10kg, 10 reps. Foca na pausa de 2 seg e contração do glúteo.' },
     { semana:4, series:3, reps:'12',  carga_ref:'60 kg', obs:'+10kg.' },
     { semana:5, series:4, reps:'12',  carga_ref:'65 kg', obs:'+1 série.' },
     { semana:6, series:4, reps:'12',  carga_ref:'70 kg', obs:'Semana de pico.' },
