@@ -292,7 +292,7 @@ const FASES = [
 
 // ── HELPERS DE PROGRESSÃO ───────────────────────────────────
 function currentWeekNumber() {
-  return Math.min(7, Math.max(1, Math.floor((new Date() - PLAN_START) / (7*86400000)) + 1));
+  return Math.min(7, Math.max(1, Math.floor((new Date() - PLAN_START) / (7*86400000)) + 2));
 }
 
 function getProgressao(exId) {
