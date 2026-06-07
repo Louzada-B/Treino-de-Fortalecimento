@@ -10,7 +10,7 @@ const PROGRESSAO = {
   a1: [
     { semana:1, series:3, reps:'10/8/6',    carga_ref:'15→20→30 kg cada lado', obs:'' },
     { semana:2, series:3, reps:'10/8/6',    carga_ref:'15→20→30 kg cada lado', obs:'' },
-    { semana:3, series:3, reps:'10/8/6',    carga_ref:'20→30→40 kg cada lado', obs:'+10% de carga' },
+    { semana:3, series:3, reps:'10/8/6',    carga_ref:'15→20→25 kg cada lado', obs:'⚠️ Lombar crônica. Carga conservadora. Testa Smith machine se disponível.' },
     { semana:4, series:3, reps:'10/8/6',    carga_ref:'20→35→45 kg cada lado', obs:'+10% de carga' },
     { semana:5, series:4, reps:'10/8/6/6',  carga_ref:'25→35→45→50 kg cada lado', obs:'+1 série. Pico de carga.' },
     { semana:6, series:4, reps:'10/8/6/6',  carga_ref:'25→40→50→55 kg cada lado', obs:'Semana de pico.' },
@@ -28,7 +28,7 @@ const PROGRESSAO = {
   a3: [
     { semana:1, series:3, reps:'12',  carga_ref:'40 kg', obs:'Na máquina. Pausa 2 seg no topo.' },
     { semana:2, series:3, reps:'12',  carga_ref:'40 kg', obs:'Consolida a execução antes de aumentar.' },
-    { semana:3, series:3, reps:'12',  carga_ref:'50 kg', obs:'+10kg.' },
+    { semana:3, series:3, reps:'12',  carga_ref:'20 kg — consolida execução', obs:'Mantém 20kg. Foca na pausa de 2 seg no topo e contração do glúteo.' },
     { semana:4, series:3, reps:'12',  carga_ref:'60 kg', obs:'+10kg.' },
     { semana:5, series:4, reps:'12',  carga_ref:'65 kg', obs:'+1 série.' },
     { semana:6, series:4, reps:'12',  carga_ref:'70 kg', obs:'Semana de pico.' },
@@ -37,7 +37,7 @@ const PROGRESSAO = {
   a4: [
     { semana:1, series:3, reps:'12',  carga_ref:'10 kg — descida em 4 seg', obs:'⚠️ Dor no joelho direito. 10kg nas 3 séries. Descida lenta 4 seg.' },
     { semana:2, series:3, reps:'12',  carga_ref:'10 kg — descida em 4 seg', obs:'⚠️ Mantém 10kg até joelho confirmar ausência de dor.' },
-    { semana:3, series:3, reps:'12',  carga_ref:'12–14 kg', obs:'Só aumenta se joelho estiver 100% sem dor.' },
+    { semana:3, series:3, reps:'12',  carga_ref:'14 kg — descida 4 seg', obs:'Mantém 14kg se joelho ficou sem dor na semana 2. Descida lenta 4 seg.' },
     { semana:4, series:3, reps:'12',  carga_ref:'14–16 kg', obs:'+10% se joelho ok.' },
     { semana:5, series:3, reps:'12',  carga_ref:'16–18 kg', obs:'+10% se joelho ok.' },
     { semana:6, series:3, reps:'12',  carga_ref:'18–20 kg', obs:'Semana de pico.' },
@@ -46,7 +46,7 @@ const PROGRESSAO = {
   a5: [
     { semana:1, series:3, reps:'15',  carga_ref:'20 kg nas 3 séries', obs:'' },
     { semana:2, series:3, reps:'15',  carga_ref:'20 kg nas 3 séries', obs:'Consolida antes de aumentar.' },
-    { semana:3, series:3, reps:'15',  carga_ref:'25 kg', obs:'+5kg.' },
+    { semana:3, series:3, reps:'15',  carga_ref:'20 kg direita · 10 kg esquerda', obs:'⚠️ Pé esquerdo. Mantém 10kg na esquerda por mais uma semana.' },
     { semana:4, series:3, reps:'15',  carga_ref:'25–30 kg', obs:'+5kg.' },
     { semana:5, series:3, reps:'15',  carga_ref:'30 kg', obs:'' },
     { semana:6, series:3, reps:'15',  carga_ref:'30–35 kg', obs:'Semana de pico.' },
@@ -55,7 +55,7 @@ const PROGRESSAO = {
   b1: [
     { semana:1, series:3, reps:'35 seg',   carga_ref:'Peso do corpo', obs:'Foco em forma perfeita.' },
     { semana:2, series:3, reps:'40 seg',   carga_ref:'Peso do corpo', obs:'+5 seg.' },
-    { semana:3, series:3, reps:'45 seg',   carga_ref:'Peso do corpo', obs:'+5 seg.' },
+    { semana:3, series:3, reps:'45 seg',   carga_ref:'Peso do corpo', obs:'+5 seg em relação à semana 2.' },
     { semana:4, series:3, reps:'50 seg',   carga_ref:'Peso do corpo', obs:'+5 seg.' },
     { semana:5, series:3, reps:'50 seg',   carga_ref:'Peso do corpo', obs:'Evolui para prancha com elevação de perna se 50 seg ficar fácil.' },
     { semana:6, series:3, reps:'50–60 seg',carga_ref:'Peso do corpo', obs:'Semana de pico.' },
@@ -73,7 +73,7 @@ const PROGRESSAO = {
   b3: [
     { semana:1, series:3, reps:'12',  carga_ref:'14 kg nas 3 séries', obs:'' },
     { semana:2, series:3, reps:'12',  carga_ref:'14 kg nas 3 séries', obs:'Consolida a execução.' },
-    { semana:3, series:3, reps:'12',  carga_ref:'16 kg', obs:'+2kg.' },
+    { semana:3, series:3, reps:'12',  carga_ref:'16 kg', obs:'+1kg em relação à semana 2.' },
     { semana:4, series:3, reps:'12',  carga_ref:'18 kg', obs:'+2kg.' },
     { semana:5, series:4, reps:'12',  carga_ref:'20 kg', obs:'+1 série.' },
     { semana:6, series:4, reps:'12',  carga_ref:'22 kg', obs:'Semana de pico.' },
@@ -82,7 +82,7 @@ const PROGRESSAO = {
   b4: [
     { semana:1, series:3, reps:'15',  carga_ref:'20 kg na máquina', obs:'Foco na contração entre as escápulas.' },
     { semana:2, series:3, reps:'15',  carga_ref:'20 kg', obs:'Mantém e consolida a execução.' },
-    { semana:3, series:3, reps:'15',  carga_ref:'22 kg', obs:'+2kg.' },
+    { semana:3, series:3, reps:'15',  carga_ref:'25 kg nas 3 séries', obs:'⚠️ Não aumenta carga. Consolida 25kg com boa execução nas 3 séries antes de progredir.' },
     { semana:4, series:3, reps:'15',  carga_ref:'24 kg', obs:'+2kg.' },
     { semana:5, series:3, reps:'15',  carga_ref:'26 kg', obs:'' },
     { semana:6, series:3, reps:'15',  carga_ref:'28 kg', obs:'Semana de pico.' },
