@@ -269,6 +269,123 @@ const EXERCICIOS_INFO = {
   },
 };
 
+
+// ── EXERCÍCIOS TREINO CASA ──────────────────────────────────
+const EXERCICIOS_CASA = {
+  c1: {
+    id:'c1', treino:'CASA', nome:'Clamshell (sem carga)', unidade:'reps',
+    musculos:['Glúteo médio','Glúteo mínimo'],
+    series:'3', reps:'15 cada lado', descanso:'30 seg', carga_inicial:'Peso do corpo',
+    video:'https://www.youtube.com/results?search_query=clamshell+exercicio+gluteo',
+    passos:[
+      'Deita de lado no chão, joelhos dobrados a 90°, pés juntos.',
+      'Abre o joelho de cima como uma concha abrindo — sem deixar o quadril girar para trás.',
+      'Pausa de 1 seg no topo sentindo o glúteo lateral.',
+      'Fecha controlado. Não deixa o pé de cima sair do lugar.',
+      'Faz as 15 reps e troca de lado.',
+    ],
+    dica:'Se tiver elástico em casa, coloca acima dos joelhos para aumentar a dificuldade sem precisar de peso.',
+  },
+  c2: {
+    id:'c2', treino:'CASA', nome:'Ponte glútea com pausa', unidade:'reps',
+    musculos:['Glúteo máximo','Isquiotibiais','Core'],
+    series:'3', reps:'15', descanso:'45 seg', carga_inicial:'Peso do corpo',
+    video:'https://www.youtube.com/results?search_query=ponte+glutea+execucao+correta',
+    passos:[
+      'Deita de costas, joelhos dobrados, pés apoiados no chão na largura dos ombros.',
+      'Empurra o quadril para cima contraindo o glúteo até o corpo ficar reto.',
+      'PAUSA de 2 segundos no topo — esprema o glúteo ao máximo.',
+      'Desce controlado sem encostar completamente o quadril no chão entre as reps.',
+      'Lombar não arqueia — o movimento é todo no quadril.',
+    ],
+    dica:'Para progredir sem peso, tenta unilateral: uma perna esticada no ar enquanto empurra com a outra.',
+  },
+  c3: {
+    id:'c3', treino:'CASA', nome:'Abdução em pé sem carga', unidade:'reps',
+    musculos:['Glúteo médio','Glúteo mínimo','Tensor da fáscia lata'],
+    series:'3', reps:'20 cada lado', descanso:'30 seg', carga_inicial:'Peso do corpo',
+    video:'https://www.youtube.com/results?search_query=abdução+quadril+em+pé+sem+peso',
+    passos:[
+      'Fica em pé segurando numa parede ou cadeira para equilíbrio.',
+      'Levanta a perna para o lado controlado até uns 45° — sem inclinar o tronco.',
+      'Pausa de 1 seg no topo sentindo o glúteo lateral.',
+      'Desce devagar. Não deixa a perna cair.',
+      'Faz as 20 reps e troca de lado.',
+    ],
+    dica:'Movimento lento vale mais do que amplitude grande. Sente o glúteo lateral trabalhando — se não sentir, está indo rápido demais.',
+  },
+  c4: {
+    id:'c4', treino:'CASA', nome:'Elevação na ponta dos pés (unilateral)', unidade:'reps',
+    musculos:['Gastrocnêmio','Sóleo','Tendão de Aquiles'],
+    series:'3', reps:'15 cada pé', descanso:'30 seg', carga_inicial:'Peso do corpo',
+    video:'https://www.youtube.com/results?search_query=elevação+panturrilha+unilateral+sem+peso',
+    passos:[
+      'Fica em pé segurando numa parede ou cadeira. Usa apenas uma perna.',
+      'Se tiver um degrau, apoia a ponta do pé nele para ter amplitude maior.',
+      'Sobe na ponta do pé até o máximo. Pausa de 1 seg no topo.',
+      'Desce devagar em 3 segundos, calcanhar abaixo do nível do apoio se possível.',
+      'Não quique no fundo — controla a descida.',
+    ],
+    dica:'Sem degrau funciona bem também. O importante é a amplitude e a descida controlada.',
+  },
+  c5: {
+    id:'c5', treino:'CASA', nome:'Elevação no calcanhar (unilateral)', unidade:'reps',
+    musculos:['Tibial anterior','Estabilizadores do tornozelo'],
+    series:'3', reps:'15 cada pé', descanso:'30 seg', carga_inicial:'Peso do corpo',
+    video:'https://www.youtube.com/results?search_query=tibial+anterior+exercicio+calcanhar',
+    passos:[
+      'Fica em pé encostado na parede para equilíbrio. Usa apenas uma perna.',
+      'Levanta a ponta do pé do chão ficando apoiado só no calcanhar.',
+      'Sobe até o máximo que conseguir. Pausa de 1 seg.',
+      'Desce controlado.',
+      'Vai sentir o músculo na frente da canela trabalhar — é o tibial anterior.',
+    ],
+    dica:'Músculo muito importante para corrida — controla o impacto a cada passada e estabiliza o tornozelo. Pouco treinado mas muito valioso.',
+  },
+  c6: {
+    id:'c6', treino:'CASA', nome:'Gato-vaca', unidade:'reps',
+    musculos:['Multífidos','Eretor da espinha','Mobilidade torácica'],
+    series:'3', reps:'10', descanso:'30 seg', carga_inicial:'Peso do corpo',
+    video:'https://www.youtube.com/results?search_query=gato+vaca+mobilidade+coluna',
+    passos:[
+      'De quatro no chão, mãos abaixo dos ombros, joelhos abaixo do quadril.',
+      'VACA: arqueia a coluna para baixo, cabeça e bumbum para cima. Inspira.',
+      'GATO: curva a coluna para cima, cabeça e bumbum para baixo. Expira.',
+      'Movimento lento e contínuo, respirando em cada posição.',
+      'Não força — é mobilidade, não força.',
+    ],
+    dica:'Excelente para soltar a lombar travada. Quanto mais devagar, melhor. Faz antes de qualquer treino.',
+  },
+  c7: {
+    id:'c7', treino:'CASA', nome:'90/90 de quadril', unidade:'segundos',
+    musculos:['Piriforme','Rotadores externos do quadril','Glúteo médio'],
+    series:'2', reps:'40 seg cada lado', descanso:'20 seg', carga_inicial:'Peso do corpo',
+    video:'https://www.youtube.com/results?search_query=alongamento+90+90+quadril',
+    passos:[
+      'Senta no chão com uma perna dobrada a 90° na frente e outra dobrada a 90° atrás.',
+      'Fica ereto, sem curvar a lombar.',
+      'Sente o alongamento profundo no quadril e glúteo da perna da frente.',
+      'Respira fundo e relaxa a cada expiração.',
+      'Troca de lado após 40 segundos.',
+    ],
+    dica:'Um dos melhores alongamentos para quem teve banda IT. Faz com calma — quanto mais relaxar, mais profundo o alongamento.',
+  },
+  c8: {
+    id:'c8', treino:'CASA', nome:'Figura 4 deitado', unidade:'segundos',
+    musculos:['Piriforme','Glúteo médio','Rotadores do quadril'],
+    series:'2', reps:'40 seg cada lado', descanso:'20 seg', carga_inicial:'Peso do corpo',
+    video:'https://www.youtube.com/results?search_query=alongamento+figura+4+piriforme+deitado',
+    passos:[
+      'Deita de costas, joelhos dobrados, pés no chão.',
+      'Cruza o tornozelo direito no joelho esquerdo — forma um número 4.',
+      'Puxa a perna esquerda em direção ao peito segurando atrás da coxa.',
+      'Sente o alongamento no glúteo e quadril da perna cruzada.',
+      'Respira fundo e relaxa. Troca de lado.',
+    ],
+    dica:'Esse alongamento alivia diretamente a tensão no piriforme — músculo que quando tenso comprime o nervo ciático e agrava dores lombares.',
+  },
+};
+
 // ── TREINOS ORGANIZADOS ─────────────────────────────────────
 const TREINOS = {
   A: {
@@ -280,6 +397,11 @@ const TREINOS = {
     nome:'Treino B', desc:'Core, estabilidade lombar e cadeia posterior',
     focus:['Prancha frontal','Dead bug','Remada unilateral','Voador inverso',"Farmer's carry"],
     exercicios:['b1','b2','b3','b4','b5'],
+  },
+  CASA: {
+    nome:'Treino Casa', desc:'Ativação, panturrilha e mobilidade lombar — sem equipamento',
+    focus:['Clamshell','Ponte glútea','Abdução em pé','Panturrilha','Calcanhar','Gato-vaca','90/90','Figura 4'],
+    exercicios:['c1','c2','c3','c4','c5','c6','c7','c8'],
   },
 };
 
@@ -319,7 +441,7 @@ function currentPhase() {
 function fmtDate(ds) { return new Date(ds+'T12:00:00').toLocaleDateString('pt-BR',{day:'2-digit',month:'short'}); }
 function fmtDateLong(ds) { return new Date(ds+'T12:00:00').toLocaleDateString('pt-BR',{weekday:'long',day:'2-digit',month:'long',year:'numeric'}); }
 function getWeekStart(offset=0) { const d=new Date(); d.setHours(0,0,0,0); d.setDate(d.getDate()-d.getDay()-offset*7); return d; }
-function allExercises() { return Object.values(EXERCICIOS_INFO); }
+function allExercises() { return [...Object.values(EXERCICIOS_INFO), ...Object.values(EXERCICIOS_CASA)]; }
 function toast(msg, type='success') {
   const el = document.createElement('div');
   el.className=`toast ${type}`; el.textContent=msg;

@@ -396,3 +396,7 @@ body.light #rel-texto { background: var(--bg-3); }
 .theme-icon-dark  { display: inline; }
 body.light .theme-icon-light { display: inline; }
 body.light .theme-icon-dark  { display: none; }
+
+/* ── BADGE TREINO CASA ── */
+.badge-casa { background: rgba(150,100,240,0.12); color: #a070f0; }
+body.light .badge-casa { background: rgba(100,50,200,0.1); color: #6030c0; }

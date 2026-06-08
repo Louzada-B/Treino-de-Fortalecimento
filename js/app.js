@@ -113,6 +113,80 @@ function renderTreinoRegistro() {
   const tipo = document.getElementById('reg-tipo').value;
   const el   = document.getElementById('treino-registro-content');
 
+  if (tipo === 'CASA') {
+    const t   = TREINOS['CASA'];
+    const wup = WARMUP['B']; // usa aquecimento do B (gato-vaca etc já estão nos exercícios)
+    let html  = '';
+
+    html += `<div class="fase-block"><span class="fase-tag">TREINO ESPECIAL</span><span class="fase-desc">Ativação em casa — sem equipamento. Lombar em recuperação.</span></div>`;
+
+    html += `<div class="card">
+      <div class="card-header"><h2>${t.nome}</h2><span class="card-sub">${t.desc}</span></div>`;
+
+    t.exercicios.forEach((id, idx) => {
+      const e    = EXERCICIOS_CASA[id];
+      const db   = getDB();
+      const ult  = db.filter(x => x.tipo === 'CASA').slice(-1)[0];
+      const prevArr = ult?.exercicios?.[id];
+      const prev    = Array.isArray(prevArr) ? prevArr : [];
+      const numSer  = parseInt(e.series) || 3;
+
+      html += \`<div class="ex-reg-block">
+        <div class="ex-reg-header">
+          <span class="ex-reg-num">\${String(idx+1).padStart(2,'0')}</span>
+          <div class="ex-reg-info">
+            <div class="ex-reg-name">\${e.nome}</div>
+            <div class="ex-reg-meta">\${e.musculos.join(' · ')}</div>
+          </div>
+          <div class="ex-reg-pills">
+            <span class="ex-pill highlight">\${e.series} séries</span>
+            <span class="ex-pill">\${e.reps}</span>
+            <span class="ex-pill">\${e.descanso} desc.</span>
+          </div>
+          <button class="btn-info" onclick="openModalCasa('\${id}')">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            Como fazer
+          </button>
+        </div>
+        <div class="series-grid">
+          <div class="series-col-header"><span>Série</span><span>Reps</span><span>\${e.unidade}</span>\${prev.length ? '<span class="prev-label">anterior</span>' : ''}</div>\`;
+
+      for (let s = 0; s < numSer; s++) {
+        const prevVal = prev[s] || '';
+        html += \`<div class="series-row">
+          <span class="series-num">S\${s+1}</span>
+          <input type="number" class="series-reps" id="rep-\${id}-\${s}" placeholder="\${e.reps.split(' ')[0] || '—'}" min="1" step="1">
+          <input type="number" class="series-peso" id="peso-\${id}-\${s}" placeholder="\${prevVal || '—'}" min="0" step="1">
+          \${prev.length ? \`<span class="series-prev">\${prevVal || '—'}</span>\` : ''}
+        </div>\`;
+      }
+      html += '</div></div>';
+    });
+
+    html += \`
+      <div class="form-row" style="margin-top:1.25rem;padding-top:1.25rem;border-top:1px solid var(--border)">
+        <div class="form-group" style="margin-bottom:0"><label>Duração (min)</label><input type="number" id="reg-duracao" placeholder="Ex: 30" min="1" max="120"></div>
+        <div class="form-group" style="margin-bottom:0"><label>Como foi?</label>
+          <select id="reg-feeling">
+            <option value="">— opcional —</option>
+            <option value="ótimo">💪 Ótimo</option>
+            <option value="bom">👍 Bom</option>
+            <option value="ok">😐 Ok</option>
+            <option value="pesado">😓 Pesado</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group" style="margin-top:12px"><label>Observações</label><textarea id="reg-obs" rows="2" placeholder="Ex: lombar melhorando, sem dores..."></textarea></div>
+      <div class="form-actions">
+        <button class="btn btn-primary" onclick="salvarSessao()">Salvar sessão</button>
+        <button class="btn btn-ghost" onclick="limparForm()">Limpar</button>
+      </div>
+    </div>\`;
+
+    el.innerHTML = html;
+    return;
+  }
+
   if (tipo === 'skip') {
     el.innerHTML = `
       <div class="card">
@@ -245,8 +319,9 @@ function salvarSessao() {
   if (!data) { toast('Selecione a data','error'); return; }
 
   const exs = {};
-  if (tipo !== 'skip') {
-    TREINOS[tipo].exercicios.forEach(id => {
+  const exerciciosDoTipo = tipo === 'CASA' ? TREINOS['CASA'].exercicios : (tipo !== 'skip' ? TREINOS[tipo].exercicios : []);
+  if (exerciciosDoTipo.length) {
+    exerciciosDoTipo.forEach(id => {
       const e      = EXERCICIOS_INFO[id];
       const numSer = parseInt(e.series) || 3;
       const arr    = [];
@@ -317,9 +392,10 @@ function renderHistorico(filtro='todos') {
       }).filter(Boolean).join(' · ');
 
     const d     = new Date(s.data+'T12:00:00');
-    const badge = s.tipo==='skip'?'<span class="badge badge-skip">PULADO</span>'
-                : s.tipo==='A'   ?'<span class="badge badge-a">TREINO A</span>'
-                :                 '<span class="badge badge-b">TREINO B</span>';
+    const badge = s.tipo==='skip' ?'<span class="badge badge-skip">PULADO</span>'
+                : s.tipo==='A'    ?'<span class="badge badge-a">TREINO A</span>'
+                : s.tipo==='CASA' ?'<span class="badge badge-casa">TREINO CASA</span>'
+                :                  '<span class="badge badge-b">TREINO B</span>';
     return `<div class="hist-item">
       <div class="hist-date"><span>${d.toLocaleDateString('pt-BR',{weekday:'short'})}</span><strong>${d.toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'})}</strong></div>
       <div class="hist-body">
@@ -432,6 +508,21 @@ function openModal(id) {
     <div class="modal-pres-item"><strong>${e.reps}</strong>${e.unidade.includes('seg')?'segundos':e.unidade==='reps'?'reps':'reps'}</div>
     <div class="modal-pres-item"><strong>${e.descanso}</strong>descanso</div>
     <div class="modal-pres-item"><strong>${e.carga_inicial}</strong>ref. inicial</div>`;
+  document.getElementById('modal-overlay').classList.add('open');
+}
+
+function openModalCasa(id) {
+  const e = EXERCICIOS_CASA[id]; if(!e) return;
+  document.getElementById('modal-title').textContent = e.nome;
+  document.getElementById('modal-video-link').href = e.video;
+  document.getElementById('modal-musculos').innerHTML = e.musculos.map(m=>`<span class="modal-tag">${m}</span>`).join('');
+  document.getElementById('modal-steps').innerHTML = e.passos.map((p,i)=>`<li data-n="${i+1}">${p}</li>`).join('');
+  document.getElementById('modal-dica').textContent = e.dica;
+  document.getElementById('modal-prescricao').innerHTML = `
+    <div class="modal-pres-item"><strong>${e.series}</strong>séries</div>
+    <div class="modal-pres-item"><strong>${e.reps}</strong>reps</div>
+    <div class="modal-pres-item"><strong>${e.descanso}</strong>descanso</div>
+    <div class="modal-pres-item"><strong>Peso do corpo</strong>sem carga</div>`;
   document.getElementById('modal-overlay').classList.add('open');
 }
 
