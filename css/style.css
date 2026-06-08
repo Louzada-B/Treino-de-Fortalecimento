@@ -400,3 +400,20 @@ body.light .theme-icon-dark  { display: none; }
 /* ── BADGE TREINO CASA ── */
 .badge-casa { background: rgba(150,100,240,0.12); color: #a070f0; }
 body.light .badge-casa { background: rgba(100,50,200,0.1); color: #6030c0; }
+
+/* ── SESSÕES EXTRAS ── */
+.extra-block {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border);
+}
+.extra-label { font-size: 12px; color: var(--text-3); }
+.extra-val {
+  font-family: var(--font-head);
+  font-size: 20px;
+  font-weight: 700;
+  color: #a070f0;
+}

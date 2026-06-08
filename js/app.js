@@ -75,6 +75,9 @@ function renderDashboard() {
   const tot = cA+cB+pul.length;
   document.getElementById('adh-val').textContent = tot>0 ? Math.round((cA+cB)/tot*100)+'%' : '--%';
 
+  const cCasa = db.filter(x=>x.tipo==='CASA').length;
+  document.getElementById('m-casa').textContent = cCasa;
+
   // week view
   const wEl  = document.getElementById('week-view');
   const days = ['D','S','T','Q','Q','S','S'];
