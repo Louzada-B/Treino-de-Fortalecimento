@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
   initNav();
   initTheme();
   initCountdown();
@@ -6,9 +6,27 @@ document.addEventListener('DOMContentLoaded', () => {
   initHistorico();
   initRelatorio();
   initModal();
-  renderDashboard();
   setTodayDate();
+  await carregarDados();
+  renderDashboard();
 });
+
+async function carregarDados() {
+  mostrarLoading(true);
+  await fetchSessoes();
+  mostrarLoading(false);
+}
+
+function mostrarLoading(show) {
+  let el = document.getElementById('loading-bar');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'loading-bar';
+    el.style.cssText = 'position:fixed;top:0;left:0;right:0;height:3px;background:var(--accent);z-index:9999;transition:opacity 0.3s';
+    document.body.appendChild(el);
+  }
+  el.style.opacity = show ? '1' : '0';
+}
 
 // ── NAV ──────────────────────────────────────────────────────
 function initNav() {
@@ -18,8 +36,8 @@ function initNav() {
       document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
       btn.classList.add('active');
       document.getElementById('page-' + btn.dataset.page).classList.add('active');
-      if (btn.dataset.page === 'dashboard') renderDashboard();
-      if (btn.dataset.page === 'historico') renderHistorico();
+      if (btn.dataset.page === 'dashboard') { carregarDados().then(renderDashboard); }
+      if (btn.dataset.page === 'historico') { carregarDados().then(() => renderHistorico()); }
     });
   });
 }
@@ -313,7 +331,7 @@ function renderTreinoRegistro() {
   el.innerHTML = html;
 }
 
-function salvarSessao() {
+async function salvarSessao() {
   const data = document.getElementById('reg-date').value;
   const tipo = document.getElementById('reg-tipo').value;
   if (!data) { toast('Selecione a data','error'); return; }
@@ -352,7 +370,14 @@ function salvarSessao() {
   if (idx>=0) db[idx]=sess; else db.push(sess);
   db.sort((a,b)=>a.data.localeCompare(b.data));
   saveDB(db);
-  toast('Sessão salva ✓');
+  mostrarLoading(true);
+  const ok = await upsertSessao(sess);
+  mostrarLoading(false);
+  if (ok) {
+    toast('Sessão salva ✓');
+  } else {
+    toast('Salvo localmente (sem conexão)', 'error');
+  }
   limparForm();
 }
 
@@ -412,8 +437,11 @@ function renderHistorico(filtro='todos') {
   }).join('');
 }
 
-function deletarSessao(id) {
+async function deletarSessao(id) {
   if (!confirm('Remover este registro?')) return;
+  mostrarLoading(true);
+  await deleteSessao(id);
+  mostrarLoading(false);
   saveDB(getDB().filter(x=>x.id!==id));
   renderHistorico(document.querySelector('.filter-btn.active')?.dataset.filter||'todos');
   toast('Registro removido');

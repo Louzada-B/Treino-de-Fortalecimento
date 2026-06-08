@@ -424,9 +424,85 @@ function getProgressao(exId) {
   return prog.find(p => p.semana === week) || prog[prog.length - 1];
 }
 
-// ── STORAGE ─────────────────────────────────────────────────
-function getDB() { try { return JSON.parse(localStorage.getItem('runner_bruno_v2') || '[]'); } catch { return []; } }
-function saveDB(d) { localStorage.setItem('runner_bruno_v2', JSON.stringify(d)); }
+// ── SUPABASE CONFIG ─────────────────────────────────────────
+const SUPA_URL = 'https://bpucodlhjnrvhxztilwp.supabase.co';
+const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJwdWNvZGxoam5ydmh4enRpbHdwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA4ODk4NjgsImV4cCI6MjA5NjQ2NTg2OH0.1BCqH3fkuRXBjkyyJ0et8xQbw05ipOXoxq8BkhZbFRA';
+
+const supaHeaders = {
+  'Content-Type': 'application/json',
+  'apikey': SUPA_KEY,
+  'Authorization': 'Bearer ' + SUPA_KEY,
+};
+
+// ── STORAGE (Supabase + localStorage como fallback) ──────────
+function getDB() {
+  try { return JSON.parse(localStorage.getItem('runner_bruno_v2') || '[]'); }
+  catch { return []; }
+}
+function saveDB(d) {
+  localStorage.setItem('runner_bruno_v2', JSON.stringify(d));
+}
+
+async function fetchSessoes() {
+  try {
+    const res = await fetch(`${SUPA_URL}/rest/v1/sessoes?order=data.asc`, {
+      headers: supaHeaders
+    });
+    if (!res.ok) throw new Error(await res.text());
+    const rows = await res.json();
+    const db = rows.map(r => ({
+      id: r.id,
+      data: r.data,
+      tipo: r.tipo,
+      exercicios: r.exercicios || {},
+      duracao: r.duracao || '',
+      feeling: r.feeling || '',
+      obs: r.obs || '',
+    }));
+    saveDB(db); // sincroniza localStorage
+    return db;
+  } catch(e) {
+    console.error('Supabase fetch error:', e);
+    return getDB(); // fallback local
+  }
+}
+
+async function upsertSessao(sess) {
+  try {
+    const res = await fetch(`${SUPA_URL}/rest/v1/sessoes`, {
+      method: 'POST',
+      headers: { ...supaHeaders, 'Prefer': 'resolution=merge-duplicates' },
+      body: JSON.stringify({
+        id: sess.id,
+        data: sess.data,
+        tipo: sess.tipo,
+        exercicios: sess.exercicios,
+        duracao: sess.duracao,
+        feeling: sess.feeling,
+        obs: sess.obs,
+      })
+    });
+    if (!res.ok) throw new Error(await res.text());
+    return true;
+  } catch(e) {
+    console.error('Supabase upsert error:', e);
+    return false;
+  }
+}
+
+async function deleteSessao(id) {
+  try {
+    const res = await fetch(`${SUPA_URL}/rest/v1/sessoes?id=eq.${id}`, {
+      method: 'DELETE',
+      headers: supaHeaders,
+    });
+    if (!res.ok) throw new Error(await res.text());
+    return true;
+  } catch(e) {
+    console.error('Supabase delete error:', e);
+    return false;
+  }
+}
 
 // ── HELPERS ─────────────────────────────────────────────────
 function daysUntilRace() {
