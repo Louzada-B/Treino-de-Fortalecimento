@@ -131,39 +131,39 @@ function renderTreinoRegistro() {
       const prev    = Array.isArray(prevArr) ? prevArr : [];
       const numSer  = parseInt(e.series) || 3;
 
-      html += \`<div class="ex-reg-block">
+      html += `<div class="ex-reg-block">
         <div class="ex-reg-header">
-          <span class="ex-reg-num">\${String(idx+1).padStart(2,'0')}</span>
+          <span class="ex-reg-num">${String(idx+1).padStart(2,'0')}</span>
           <div class="ex-reg-info">
-            <div class="ex-reg-name">\${e.nome}</div>
-            <div class="ex-reg-meta">\${e.musculos.join(' · ')}</div>
+            <div class="ex-reg-name">${e.nome}</div>
+            <div class="ex-reg-meta">${e.musculos.join(' · ')}</div>
           </div>
           <div class="ex-reg-pills">
-            <span class="ex-pill highlight">\${e.series} séries</span>
-            <span class="ex-pill">\${e.reps}</span>
-            <span class="ex-pill">\${e.descanso} desc.</span>
+            <span class="ex-pill highlight">${e.series} séries</span>
+            <span class="ex-pill">${e.reps}</span>
+            <span class="ex-pill">${e.descanso} desc.</span>
           </div>
-          <button class="btn-info" onclick="openModalCasa('\${id}')">
+          <button class="btn-info" onclick="openModalCasa('${id}')">
             <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
             Como fazer
           </button>
         </div>
         <div class="series-grid">
-          <div class="series-col-header"><span>Série</span><span>Reps</span><span>\${e.unidade}</span>\${prev.length ? '<span class="prev-label">anterior</span>' : ''}</div>\`;
+          <div class="series-col-header"><span>Série</span><span>Reps</span><span>${e.unidade}</span>${prev.length ? '<span class="prev-label">anterior</span>' : ''}</div>`;
 
       for (let s = 0; s < numSer; s++) {
         const prevVal = prev[s] || '';
-        html += \`<div class="series-row">
-          <span class="series-num">S\${s+1}</span>
-          <input type="number" class="series-reps" id="rep-\${id}-\${s}" placeholder="\${e.reps.split(' ')[0] || '—'}" min="1" step="1">
-          <input type="number" class="series-peso" id="peso-\${id}-\${s}" placeholder="\${prevVal || '—'}" min="0" step="1">
-          \${prev.length ? \`<span class="series-prev">\${prevVal || '—'}</span>\` : ''}
-        </div>\`;
+        html += `<div class="series-row">
+          <span class="series-num">S${s+1}</span>
+          <input type="number" class="series-reps" id="rep-${id}-${s}" placeholder="${e.reps.split(' ')[0] || '—'}" min="1" step="1">
+          <input type="number" class="series-peso" id="peso-${id}-${s}" placeholder="${prevVal || '—'}" min="0" step="1">
+          ${prev.length ? `<span class="series-prev">${prevVal || '—'}</span>` : ''}
+        </div>`;
       }
       html += '</div></div>';
     });
 
-    html += \`
+    html += `
       <div class="form-row" style="margin-top:1.25rem;padding-top:1.25rem;border-top:1px solid var(--border)">
         <div class="form-group" style="margin-bottom:0"><label>Duração (min)</label><input type="number" id="reg-duracao" placeholder="Ex: 30" min="1" max="120"></div>
         <div class="form-group" style="margin-bottom:0"><label>Como foi?</label>
@@ -181,7 +181,7 @@ function renderTreinoRegistro() {
         <button class="btn btn-primary" onclick="salvarSessao()">Salvar sessão</button>
         <button class="btn btn-ghost" onclick="limparForm()">Limpar</button>
       </div>
-    </div>\`;
+    </div>`;
 
     el.innerHTML = html;
     return;
