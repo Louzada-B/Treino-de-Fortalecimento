@@ -1,9 +1,10 @@
 document.addEventListener('DOMContentLoaded', async () => {
   initTheme();
-  initLogin();
+  initApp();
 });
 
-async function initLogin() {
+async function initApp() {
+  initLoginForm();
   const logado = await restoreSession();
   if (logado) {
     mostrarApp();
@@ -39,7 +40,7 @@ async function carregarDados() {
   mostrarLoading(false);
 }
 
-function initLogin() {
+function initLoginForm() {
   const overlay = document.getElementById('login-overlay');
   overlay.style.display = 'none';
 
