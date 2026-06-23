@@ -655,12 +655,20 @@ const PROGRESSAO_RITIELI = {
   ],
 };
 
-// Data de início do plano da Ritieli
-const PLAN_START_RITIELI = new Date();
-PLAN_START_RITIELI.setHours(0,0,0,0);
+// Data de início do plano da Ritieli — começa hoje quando ela fizer o primeiro login
+function getPlanStartRitieli() {
+  let stored = localStorage.getItem('ritieli_plan_start');
+  if (!stored) {
+    const hoje = new Date(); hoje.setHours(0,0,0,0);
+    stored = hoje.toISOString();
+    localStorage.setItem('ritieli_plan_start', stored);
+  }
+  return new Date(stored);
+}
 
 function currentWeekNumberRitieli() {
-  return Math.min(7, Math.max(1, Math.floor((new Date() - PLAN_START_RITIELI) / (7*86400000)) + 1));
+  const start = getPlanStartRitieli();
+  return Math.min(7, Math.max(1, Math.floor((new Date() - start) / (7*86400000)) + 1));
 }
 
 function getProgressaoRitieli(exId) {

@@ -18,9 +18,18 @@ async function mostrarApp() {
   document.getElementById('main-app').style.display = 'grid';
   const perfil = getPerfilUsuario();
   if (perfil) {
-    document.getElementById('login-initials').textContent = perfil.iniciais;
+    // Atualiza nome, iniciais e título da aba
+    const iniciaisEl = document.querySelector('.brand-initials');
+    if (iniciaisEl) iniciaisEl.textContent = perfil.iniciais;
+    const nomeEl = document.querySelector('.brand-name');
+    if (nomeEl) nomeEl.textContent = perfil.nome;
     const badge = document.getElementById('user-badge');
-    if (badge) badge.textContent = perfil.nome;
+    if (badge) badge.textContent = '';
+    document.title = `Plano de Treino · ${perfil.nome}`;
+
+    // Esconde race card para Ritieli
+    const raceCard = document.querySelector('.race-card');
+    if (raceCard) raceCard.style.display = isRitieli() ? 'none' : '';
   }
   initNav();
   initLogout();
@@ -123,6 +132,11 @@ function initTheme() {
 
 // ── COUNTDOWN ────────────────────────────────────────────────
 function initCountdown() {
+  if (isRitieli()) {
+    const week = currentWeekNumberRitieli();
+    document.getElementById('phase-badge').textContent = `Semana ${week} de 7 — Plano da Ritieli`;
+    return;
+  }
   const days = daysUntilRace();
   document.getElementById('days-num').textContent = days;
   const total = Math.ceil((RACE_DATE - PLAN_START) / 86400000);
@@ -148,11 +162,17 @@ function renderDashboard() {
   const cA = db.filter(x => x.tipo==='A').length;
   const cB = db.filter(x => x.tipo==='B').length;
   const cCasa = db.filter(x => x.tipo==='CASA').length;
-  document.getElementById('cnt-a').textContent = cA+'/7';
-  document.getElementById('cnt-b').textContent = cB+'/7';
-  document.getElementById('bar-a').style.width = Math.min(100,Math.round(cA/7*100))+'%';
-  document.getElementById('bar-b').style.width = Math.min(100,Math.round(cB/7*100))+'%';
-  document.getElementById('m-casa').textContent = cCasa;
+  const metaSessoes = 7;
+  document.getElementById('cnt-a').textContent = cA+'/'+metaSessoes;
+  document.getElementById('cnt-b').textContent = cB+'/'+metaSessoes;
+  document.getElementById('bar-a').style.width = Math.min(100,Math.round(cA/metaSessoes*100))+'%';
+  document.getElementById('bar-b').style.width = Math.min(100,Math.round(cB/metaSessoes*100))+'%';
+  const casaBlock = document.getElementById('m-casa');
+  if (casaBlock) {
+    casaBlock.textContent = cCasa;
+    const extraBlock = casaBlock.closest('.extra-block');
+    if (extraBlock) extraBlock.style.display = isRitieli() ? 'none' : '';
+  }
   const tot = cA+cB+pul.length;
   document.getElementById('adh-val').textContent = tot>0 ? Math.round((cA+cB)/tot*100)+'%' : '--%';
 
@@ -230,7 +250,7 @@ function renderTreinoRegistro() {
   const wup = getWarmupAtivo(tipo === 'CASA' ? 'B' : tipo);
   const db  = getDB();
   const ult = db.filter(x => x.tipo === tipo).slice(-1)[0];
-  const ph  = currentPhase();
+  const ph  = isRitieli() ? { nome: 'Semana ' + currentWeekNumberRitieli(), desc: 'Progressão automática por semana' } : currentPhase();
   const exInfoMap = tipo === 'CASA' ? EXERCICIOS_CASA : (isRitieli() ? EXERCICIOS_RITIELI : EXERCICIOS_INFO);
 
   let html = '';
@@ -260,7 +280,7 @@ function renderTreinoRegistro() {
     const prev    = Array.isArray(prevArr) ? prevArr : [];
 
     const recBadge = prog ? `<div class="rec-block">
-      <span class="rec-label">SEMANA ${currentWeekNumber()}</span>
+      <span class="rec-label">SEMANA ${isRitieli() ? currentWeekNumberRitieli() : currentWeekNumber()}</span>
       <span class="rec-carga">${prog.carga_ref}</span>
       <span class="rec-reps">${prog.series} séries · ${prog.reps}</span>
       ${prog.obs ? `<span class="rec-obs">${prog.obs}</span>` : ''}
