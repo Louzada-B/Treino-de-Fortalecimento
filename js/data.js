@@ -5,19 +5,84 @@ const PLAN_START = new Date('2026-05-25T00:00:00');
 // ── SUPABASE CONFIG ─────────────────────────────────────────
 const SUPA_URL = 'https://bpucodlhjnrvhxztilwp.supabase.co';
 const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJwdWNvZGxoam5ydmh4enRpbHdwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA4ODk4NjgsImV4cCI6MjA5NjQ2NTg2OH0.1BCqH3fkuRXBjkyyJ0et8xQbw05ipOXoxq8BkhZbFRA';
-const supaHeaders = {
-  'Content-Type': 'application/json',
-  'apikey': SUPA_KEY,
-  'Authorization': 'Bearer ' + SUPA_KEY,
+
+// Token do usuário logado (atualizado após login)
+let currentToken = null;
+let currentUser  = null;
+
+function supaHeaders() {
+  return {
+    'Content-Type': 'application/json',
+    'apikey': SUPA_KEY,
+    'Authorization': 'Bearer ' + (currentToken || SUPA_KEY),
+  };
+}
+
+// ── PERFIS DE USUÁRIO ────────────────────────────────────────
+const USUARIOS = {
+  'brunoellouzada@gmail.com': {
+    nome: 'Bruno Elias',
+    iniciais: 'BEL',
+    plano: 'BRUNO',
+  },
+  'ritielihermes@gmail.com': {
+    nome: 'Ritieli Hermes',
+    iniciais: 'RH',
+    plano: 'RITIELI',
+  },
 };
 
+function getPerfilUsuario() {
+  return currentUser ? (USUARIOS[currentUser.email] || { nome: currentUser.email, iniciais: '?', plano: 'BRUNO' }) : null;
+}
+
+// ── AUTH ────────────────────────────────────────────────────
+async function loginSupabase(email, password) {
+  const res = await fetch(`${SUPA_URL}/auth/v1/token?grant_type=password`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'apikey': SUPA_KEY },
+    body: JSON.stringify({ email, password }),
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error_description || data.msg || 'Erro ao fazer login');
+  currentToken = data.access_token;
+  currentUser  = data.user;
+  localStorage.setItem('runner_token', currentToken);
+  localStorage.setItem('runner_user', JSON.stringify(currentUser));
+  return data;
+}
+
+async function restoreSession() {
+  const token = localStorage.getItem('runner_token');
+  const user  = localStorage.getItem('runner_user');
+  if (!token || !user) return false;
+  currentToken = token;
+  currentUser  = JSON.parse(user);
+  // Valida o token
+  try {
+    const res = await fetch(`${SUPA_URL}/auth/v1/user`, {
+      headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + token }
+    });
+    if (!res.ok) { logoutLocal(); return false; }
+    return true;
+  } catch { return false; }
+}
+
+function logoutLocal() {
+  currentToken = null; currentUser = null;
+  localStorage.removeItem('runner_token');
+  localStorage.removeItem('runner_user');
+  localStorage.removeItem('runner_bruno_v2');
+}
+
 // ── STORAGE ─────────────────────────────────────────────────
-function getDB() { try { return JSON.parse(localStorage.getItem('runner_bruno_v2') || '[]'); } catch { return []; } }
-function saveDB(d) { localStorage.setItem('runner_bruno_v2', JSON.stringify(d)); }
+function getDBKey() { return currentUser ? `runner_db_${currentUser.id}` : 'runner_bruno_v2'; }
+function getDB() { try { return JSON.parse(localStorage.getItem(getDBKey()) || '[]'); } catch { return []; } }
+function saveDB(d) { localStorage.setItem(getDBKey(), JSON.stringify(d)); }
 
 async function fetchSessoes() {
   try {
-    const res = await fetch(`${SUPA_URL}/rest/v1/sessoes?order=data.asc`, { headers: supaHeaders });
+    const res = await fetch(`${SUPA_URL}/rest/v1/sessoes?order=data.asc`, { headers: supaHeaders() });
     if (!res.ok) throw new Error(await res.text());
     const rows = await res.json();
     const db = rows.map(r => ({ id: r.id, data: r.data, tipo: r.tipo, exercicios: r.exercicios || {}, duracao: r.duracao || '', feeling: r.feeling || '', obs: r.obs || '' }));
@@ -30,8 +95,8 @@ async function upsertSessao(sess) {
   try {
     const res = await fetch(`${SUPA_URL}/rest/v1/sessoes`, {
       method: 'POST',
-      headers: { ...supaHeaders, 'Prefer': 'resolution=merge-duplicates' },
-      body: JSON.stringify({ id: sess.id, data: sess.data, tipo: sess.tipo, exercicios: sess.exercicios, duracao: sess.duracao, feeling: sess.feeling, obs: sess.obs })
+      headers: { ...supaHeaders(), 'Prefer': 'resolution=merge-duplicates' },
+      body: JSON.stringify({ id: sess.id, data: sess.data, tipo: sess.tipo, exercicios: sess.exercicios, duracao: sess.duracao, feeling: sess.feeling, obs: sess.obs, user_id: currentUser?.id })
     });
     if (!res.ok) throw new Error(await res.text());
     return true;
@@ -40,7 +105,7 @@ async function upsertSessao(sess) {
 
 async function deleteSessao(id) {
   try {
-    const res = await fetch(`${SUPA_URL}/rest/v1/sessoes?id=eq.${id}`, { method: 'DELETE', headers: supaHeaders });
+    const res = await fetch(`${SUPA_URL}/rest/v1/sessoes?id=eq.${id}`, { method: 'DELETE', headers: supaHeaders() });
     if (!res.ok) throw new Error(await res.text());
     return true;
   } catch(e) { console.error('Supabase delete error:', e); return false; }
@@ -85,13 +150,13 @@ const PROGRESSAO = {
     { semana:7, series:2, reps:'10', carga_ref:'12 kg', obs:'Descarga pré-prova.' },
   ],
   a5: [
-    { semana:1, series:3, reps:'15', carga_ref:'20 kg direita · 10 kg esquerda', obs:'⚠️ Pé esquerdo. Mantém 10kg na esquerda.' },
-    { semana:2, series:3, reps:'15', carga_ref:'20 kg direita · 10 kg esquerda', obs:'⚠️ Mantém 10kg na esquerda até pé melhorar.' },
-    { semana:3, series:3, reps:'15', carga_ref:'20 kg direita · 10 kg esquerda', obs:'⚠️ Mantém 10kg na esquerda por mais uma semana.' },
-    { semana:4, series:3, reps:'15', carga_ref:'25 kg direita · 15 kg esquerda', obs:'Aumenta se pé esquerdo estiver ok.' },
-    { semana:5, series:3, reps:'15', carga_ref:'28 kg', obs:'+3kg.' },
-    { semana:6, series:3, reps:'15', carga_ref:'30 kg', obs:'Semana de pico.' },
-    { semana:7, series:2, reps:'12', carga_ref:'20 kg', obs:'Descarga pré-prova.' },
+    { semana:1, series:3, reps:'15', carga_ref:'30 kg bilateral', obs:'Bilateral. Dois pés juntos.' },
+    { semana:2, series:3, reps:'15', carga_ref:'30 kg bilateral', obs:'Bilateral.' },
+    { semana:3, series:3, reps:'15', carga_ref:'30 kg bilateral', obs:'Bilateral.' },
+    { semana:4, series:3, reps:'15', carga_ref:'30 kg bilateral', obs:'Bilateral.' },
+    { semana:5, series:3, reps:'15', carga_ref:'30 kg bilateral', obs:'Bilateral. Mantém carga estável pré-prova.' },
+    { semana:6, series:3, reps:'15', carga_ref:'30 kg bilateral', obs:'Bilateral. Semana de pico.' },
+    { semana:7, series:2, reps:'12', carga_ref:'25 kg bilateral', obs:'Descarga pré-prova.' },
   ],
   b1: [
     { semana:1, series:3, reps:'35 seg', carga_ref:'Peso do corpo', obs:'' },
@@ -201,12 +266,12 @@ const EXERCICIOS_INFO = {
     dica:'⚠️ Joelho direito sensível. Descida em 4 seg obrigatória. Não aumenta carga enquanto houver qualquer desconforto.',
   },
   a5: {
-    id:'a5', treino:'A', nome:'Panturrilha unilateral em pé', unidade:'kg',
+    id:'a5', treino:'A', nome:'Panturrilha bilateral em pé', unidade:'kg',
     musculos:['Gastrocnêmio','Sóleo','Tendão de Aquiles'],
-    series:'3', reps:'15 cada pé', descanso:'60 seg', carga_inicial:'20 kg direita · 10 kg esquerda',
-    video:'https://www.youtube.com/results?search_query=panturrilha+unilateral+em+pé+execução',
-    passos:['Fique em pé apoiando a ponta do pé no degrau ou borda de uma plataforma.','Segure algum apoio para equilíbrio. Use apenas uma perna.','Desça o calcanhar abaixo do nível do apoio — sinta o alongamento.','Suba até o máximo elevando o calcanhar — PAUSA de 1 seg no topo.','Desça em 3 segundos. Não quique no fundo.'],
-    dica:'⚠️ Pé esquerdo com histórico de dor. Mantém 10kg na esquerda até estar completamente assintomático.',
+    series:'3', reps:'15', descanso:'60 seg', carga_inicial:'30 kg',
+    video:'https://www.youtube.com/results?search_query=panturrilha+bilateral+em+pé+execução',
+    passos:['Fique em pé com os dois pés na borda de um degrau ou plataforma, largura dos ombros.','Segure algum apoio para equilíbrio se necessário.','Desça os calcanhares abaixo do nível do apoio — sinta o alongamento nas duas panturrilhas.','Suba até o máximo elevando os calcanhares — PAUSA de 1 seg no topo.','Desça em 3 segundos. Não quique no fundo.'],
+    dica:'Mudança para bilateral para proteger o pé esquerdo nas semanas finais antes da prova. Mesma qualidade de estímulo com menos risco.',
   },
   b1: {
     id:'b1', treino:'B', nome:'Prancha frontal', unidade:'segundos',
@@ -373,4 +438,257 @@ function toast(msg, type='success') {
   el.className = `toast ${type}`; el.textContent = msg;
   document.body.appendChild(el);
   setTimeout(() => el.remove(), 2500);
+}
+
+// ── PLANO RITIELI ────────────────────────────────────────────
+const WARMUP_RITIELI = {
+  A: {
+    aquecimento: [
+      { nome: 'Caminhada na esteira',              detalhe: '5 min a 5–6km/h — aquecimento geral' },
+      { nome: 'Agachamento livre sem carga',        detalhe: '10 reps com pausa embaixo — ativa glúteo e quadríceps' },
+      { nome: 'Abdução em pé sem carga',            detalhe: '10 reps cada lado — ativa glúteo médio' },
+    ],
+    alongamento: [
+      { nome: 'Posterior deitado',   detalhe: '40 seg cada lado — puxa a perna esticada com as mãos' },
+      { nome: 'Figura 4 deitado',    detalhe: '40 seg cada lado — cruza o tornozelo no joelho oposto' },
+    ],
+  },
+  B: {
+    aquecimento: [
+      { nome: 'Caminhada na esteira',  detalhe: '5 min a 5–6km/h — aquecimento geral' },
+      { nome: 'Rotação de ombros',     detalhe: '10 reps cada direção — mobiliza a articulação do ombro' },
+      { nome: 'Gato-vaca',             detalhe: '10 reps lentas — mobilidade de coluna' },
+    ],
+    alongamento: [
+      { nome: 'Alongamento de peitoral na parede', detalhe: '30 seg cada lado — apoia o braço na parede e gira o tronco' },
+      { nome: 'Gato-vaca',                         detalhe: '10 reps lentas — relaxa a coluna após o treino' },
+    ],
+  },
+};
+
+const EXERCICIOS_RITIELI = {
+  r_a1: {
+    id:'r_a1', treino:'A', nome:'Leg press 45°', unidade:'kg',
+    musculos:['Quadríceps','Glúteo máximo','Isquiotibiais'],
+    series:'3', reps:'15', descanso:'60 seg', carga_inicial:'20–30 kg',
+    video:'https://www.youtube.com/results?search_query=leg+press+45+execução+iniciante',
+    passos:['Sente na máquina com as costas completamente apoiadas no encosto.','Pés na plataforma na largura dos ombros, levemente abertos para fora.','Solte os travas e desça a plataforma controlado até os joelhos formarem 90°.','Empurre a plataforma de volta sem travar os joelhos no final.','Respire: inspira descendo, expira empurrando.'],
+    dica:'Não deixe os joelhos fecharem para dentro — eles devem apontar na mesma direção que os pés. Comece leve para aprender o movimento.',
+  },
+  r_a2: {
+    id:'r_a2', treino:'A', nome:'Abdução de quadril (máquina sentado)', unidade:'kg',
+    musculos:['Glúteo médio','Glúteo mínimo'],
+    series:'3', reps:'20', descanso:'45 seg', carga_inicial:'30–40 kg',
+    video:'https://www.youtube.com/results?search_query=abdução+de+quadril+máquina+sentado',
+    passos:['Sente na máquina com as costas retas encostadas no apoio.','Almofadas nas partes externas dos joelhos.','Abra as pernas controlado até o máximo da amplitude.','PAUSA de 1 segundo aberto — sinta o glúteo lateral contrair.','Feche lentamente — não deixe a máquina bater.'],
+    dica:'Foco na contração, não na carga. O glúteo médio é fundamental para o emagrecimento — é um dos maiores músculos do corpo.',
+  },
+  r_a3: {
+    id:'r_a3', treino:'A', nome:'Cadeira extensora bilateral', unidade:'kg',
+    musculos:['Quadríceps'],
+    series:'3', reps:'15', descanso:'60 seg', carga_inicial:'15–20 kg',
+    video:'https://www.youtube.com/results?search_query=cadeira+extensora+execução+correta',
+    passos:['Ajuste o banco para que o joelho fique alinhado com o eixo da máquina.','Apoio acolchoado na frente dos tornozelos.','Estenda as pernas controlado até quase reto — não trave os joelhos.','PAUSA de 1 seg no topo contraindo o quadríceps.','Desça em 3 segundos — fase excêntrica importante.'],
+    dica:'Bilateral é mais simples para quem está voltando. Depois de algumas semanas pode evoluir para unilateral.',
+  },
+  r_a4: {
+    id:'r_a4', treino:'A', nome:'Mesa flexora bilateral', unidade:'kg',
+    musculos:['Isquiotibiais','Glúteo'],
+    series:'3', reps:'15', descanso:'60 seg', carga_inicial:'10–15 kg',
+    video:'https://www.youtube.com/results?search_query=mesa+flexora+execução+correta',
+    passos:['Deite de bruços na máquina com os joelhos alinhados ao eixo.','Apoio acolchoado atrás dos tornozelos.','Flexione as pernas trazendo os calcanhares em direção ao glúteo.','Pausa 1 seg no topo.','Desça controlado em 3 segundos.'],
+    dica:'Carga bem leve no início — posterior de coxa costuma ser fraco em quem ficou parada. Não force amplitude além do confortável.',
+  },
+  r_a5: {
+    id:'r_a5', treino:'A', nome:'Panturrilha bilateral em pé', unidade:'kg',
+    musculos:['Gastrocnêmio','Sóleo'],
+    series:'3', reps:'15', descanso:'45 seg', carga_inicial:'20 kg',
+    video:'https://www.youtube.com/results?search_query=panturrilha+bilateral+em+pé+execução',
+    passos:['Fique em pé com os dois pés na borda de um degrau ou plataforma.','Segure algum apoio para equilíbrio.','Desça os calcanhares abaixo do nível do apoio — sinta o alongamento.','Suba até o máximo — PAUSA de 1 seg no topo.','Desça em 3 segundos. Não quique no fundo.'],
+    dica:'Panturrilhas são resistentes — não tenha medo de progredir a carga quando 15 reps ficarem fáceis.',
+  },
+  r_b1: {
+    id:'r_b1', treino:'B', nome:'Crossover no cabo', unidade:'kg cada lado',
+    musculos:['Peitoral','Deltoide anterior','Bíceps'],
+    series:'3', reps:'12', descanso:'60 seg', carga_inicial:'5–8 kg cada lado',
+    video:'https://www.youtube.com/results?search_query=crossover+cabo+execução+peitoral',
+    passos:['Ajusta o cabo na altura do ombro ou acima. Fica no centro da máquina.','Segura as alças com os braços abertos, cotovelos levemente dobrados.','Traz os braços à frente cruzando levemente no centro.','PAUSA de 1 seg no cruzamento — sente o peitoral apertar.','Abre os braços controlado de volta. Não deixa o peso puxar.'],
+    dica:'Carga muito leve no início. O movimento é o que importa — foca em sentir o peitoral contrair no cruzamento.',
+  },
+  r_b2: {
+    id:'r_b2', treino:'B', nome:'Puxada frontal (pulley)', unidade:'kg',
+    musculos:['Latíssimo do dorso','Romboides','Bíceps'],
+    series:'3', reps:'12', descanso:'60 seg', carga_inicial:'20–25 kg',
+    video:'https://www.youtube.com/results?search_query=puxada+frontal+pulley+execução+correta',
+    passos:['Senta no banco com os joelhos presos sob o apoio. Segura a barra larga.','Inclina levemente o tronco para trás — uns 10–15°.','Puxa a barra até a altura do queixo ou parte superior do peitoral.','Pausa 1 seg embaixo sentindo as costas contrair.','Sobe controlado — não deixa o peso puxar os braços de volta.'],
+    dica:'Pensa em puxar com os cotovelos, não com as mãos. Isso ativa melhor as costas e menos os bíceps.',
+  },
+  r_b3: {
+    id:'r_b3', treino:'B', nome:'Desenvolvimento com halteres (sentado)', unidade:'kg cada lado',
+    musculos:['Deltoide','Tríceps','Trapézio'],
+    series:'3', reps:'12', descanso:'60 seg', carga_inicial:'4–6 kg cada lado',
+    video:'https://www.youtube.com/results?search_query=desenvolvimento+halteres+sentado+execução',
+    passos:['Senta no banco com encosto. Segura um halter em cada mão na altura dos ombros.','Palmas viradas para frente, cotovelos dobrados a 90°.','Empurra os halteres para cima até os braços ficarem quase esticados.','Desce controlado até a posição inicial.','Não trava os cotovelos no topo.'],
+    dica:'Ombros são músculos pequenos — carga muito leve no início. Não compensa com o tronco inclinando para trás.',
+  },
+  r_b4: {
+    id:'r_b4', treino:'B', nome:'Remada baixa no cabo', unidade:'kg',
+    musculos:['Romboides','Trapézio médio','Latíssimo do dorso','Bíceps'],
+    series:'3', reps:'12', descanso:'60 seg', carga_inicial:'20–25 kg',
+    video:'https://www.youtube.com/results?search_query=remada+baixa+cabo+execução+correta',
+    passos:['Senta na máquina com os pés apoiados. Segura a pegada neutra (palmas uma para a outra).','Mantém a lombar reta — não deixa curvar.','Puxa a alça em direção ao abdômen, cotovelos próximos ao corpo.','Pausa 1 seg contraindo as escápulas — "aperta" as costas.','Estende os braços controlado voltando à posição inicial.'],
+    dica:'Ótimo exercício para postura. Foca em sentir as escápulas se aproximarem no final do movimento.',
+  },
+  r_b5: {
+    id:'r_b5', treino:'B', nome:'Prancha frontal', unidade:'segundos',
+    musculos:['Core (transverso do abdômen)','Glúteo','Estabilizadores da coluna'],
+    series:'3', reps:'25–35 seg', descanso:'45 seg', carga_inicial:'Peso do corpo',
+    video:'https://www.youtube.com/results?search_query=prancha+frontal+execução+correta+iniciante',
+    passos:['Apoie nos antebraços e pontas dos pés. Cotovelos abaixo dos ombros.','Corpo reto da cabeça ao calcanhar — não deixe o quadril subir ou afundar.','Contraia o abdômen. Respire normalmente.','Olhe para o chão, pescoço neutro.','Se for difícil, apoia os joelhos no chão e progride aos poucos.'],
+    dica:'Começa com 25 seg e vai aumentando 5 seg por semana. Qualidade sempre antes de duração.',
+  },
+};
+
+const TREINOS_RITIELI = {
+  A: {
+    nome:'Treino A', desc:'Membros inferiores e glúteo',
+    focus:['Leg press 45°','Abdução de quadril','Cadeira extensora','Mesa flexora','Panturrilha'],
+    exercicios:['r_a1','r_a2','r_a3','r_a4','r_a5'],
+  },
+  B: {
+    nome:'Treino B', desc:'Membros superiores e core',
+    focus:['Crossover no cabo','Puxada frontal','Desenvolvimento','Remada baixa','Prancha'],
+    exercicios:['r_b1','r_b2','r_b3','r_b4','r_b5'],
+  },
+};
+
+const PROGRESSAO_RITIELI = {
+  r_a1: [
+    { semana:1, series:3, reps:'15', carga_ref:'20 kg', obs:'Aprende o movimento. Carga bem leve.' },
+    { semana:2, series:3, reps:'15', carga_ref:'25 kg', obs:'+5kg se semana 1 estava fácil.' },
+    { semana:3, series:3, reps:'15', carga_ref:'30 kg', obs:'+5kg.' },
+    { semana:4, series:3, reps:'15', carga_ref:'35 kg', obs:'+5kg.' },
+    { semana:5, series:3, reps:'12', carga_ref:'40 kg', obs:'Reduz reps, aumenta carga.' },
+    { semana:6, series:3, reps:'12', carga_ref:'45 kg', obs:'+5kg.' },
+    { semana:7, series:3, reps:'15', carga_ref:'35 kg', obs:'Volta volume.' },
+  ],
+  r_a2: [
+    { semana:1, series:3, reps:'20', carga_ref:'30 kg', obs:'Foco na contração.' },
+    { semana:2, series:3, reps:'20', carga_ref:'35 kg', obs:'+5kg.' },
+    { semana:3, series:3, reps:'20', carga_ref:'40 kg', obs:'+5kg.' },
+    { semana:4, series:3, reps:'20', carga_ref:'45 kg', obs:'+5kg.' },
+    { semana:5, series:3, reps:'20', carga_ref:'50 kg', obs:'+5kg.' },
+    { semana:6, series:3, reps:'20', carga_ref:'55 kg', obs:'+5kg.' },
+    { semana:7, series:3, reps:'20', carga_ref:'45 kg', obs:'Mantém volume.' },
+  ],
+  r_a3: [
+    { semana:1, series:3, reps:'15', carga_ref:'15 kg', obs:'Descida em 3 seg.' },
+    { semana:2, series:3, reps:'15', carga_ref:'18 kg', obs:'+3kg.' },
+    { semana:3, series:3, reps:'15', carga_ref:'20 kg', obs:'+2kg.' },
+    { semana:4, series:3, reps:'15', carga_ref:'23 kg', obs:'+3kg.' },
+    { semana:5, series:3, reps:'12', carga_ref:'25 kg', obs:'Reduz reps, aumenta carga.' },
+    { semana:6, series:3, reps:'12', carga_ref:'28 kg', obs:'+3kg.' },
+    { semana:7, series:3, reps:'15', carga_ref:'20 kg', obs:'Volta volume.' },
+  ],
+  r_a4: [
+    { semana:1, series:3, reps:'15', carga_ref:'10 kg', obs:'Carga leve. Posterior costuma ser fraco.' },
+    { semana:2, series:3, reps:'15', carga_ref:'12 kg', obs:'+2kg.' },
+    { semana:3, series:3, reps:'15', carga_ref:'15 kg', obs:'+3kg.' },
+    { semana:4, series:3, reps:'15', carga_ref:'17 kg', obs:'+2kg.' },
+    { semana:5, series:3, reps:'12', carga_ref:'20 kg', obs:'Reduz reps, aumenta carga.' },
+    { semana:6, series:3, reps:'12', carga_ref:'22 kg', obs:'+2kg.' },
+    { semana:7, series:3, reps:'15', carga_ref:'15 kg', obs:'Volta volume.' },
+  ],
+  r_a5: [
+    { semana:1, series:3, reps:'15', carga_ref:'20 kg', obs:'' },
+    { semana:2, series:3, reps:'15', carga_ref:'22 kg', obs:'+2kg.' },
+    { semana:3, series:3, reps:'15', carga_ref:'25 kg', obs:'+3kg.' },
+    { semana:4, series:3, reps:'15', carga_ref:'27 kg', obs:'+2kg.' },
+    { semana:5, series:3, reps:'15', carga_ref:'30 kg', obs:'+3kg.' },
+    { semana:6, series:3, reps:'15', carga_ref:'32 kg', obs:'+2kg.' },
+    { semana:7, series:3, reps:'15', carga_ref:'25 kg', obs:'Mantém.' },
+  ],
+  r_b1: [
+    { semana:1, series:3, reps:'12', carga_ref:'5 kg cada lado', obs:'Muito leve. Foca no movimento.' },
+    { semana:2, series:3, reps:'12', carga_ref:'6 kg cada lado', obs:'+1kg.' },
+    { semana:3, series:3, reps:'12', carga_ref:'7 kg cada lado', obs:'+1kg.' },
+    { semana:4, series:3, reps:'12', carga_ref:'8 kg cada lado', obs:'+1kg.' },
+    { semana:5, series:3, reps:'12', carga_ref:'9 kg cada lado', obs:'+1kg.' },
+    { semana:6, series:3, reps:'12', carga_ref:'10 kg cada lado', obs:'+1kg.' },
+    { semana:7, series:3, reps:'12', carga_ref:'8 kg cada lado', obs:'Mantém.' },
+  ],
+  r_b2: [
+    { semana:1, series:3, reps:'12', carga_ref:'20 kg', obs:'Puxa com os cotovelos.' },
+    { semana:2, series:3, reps:'12', carga_ref:'23 kg', obs:'+3kg.' },
+    { semana:3, series:3, reps:'12', carga_ref:'25 kg', obs:'+2kg.' },
+    { semana:4, series:3, reps:'12', carga_ref:'28 kg', obs:'+3kg.' },
+    { semana:5, series:3, reps:'12', carga_ref:'30 kg', obs:'+2kg.' },
+    { semana:6, series:3, reps:'12', carga_ref:'32 kg', obs:'+2kg.' },
+    { semana:7, series:3, reps:'12', carga_ref:'25 kg', obs:'Mantém.' },
+  ],
+  r_b3: [
+    { semana:1, series:3, reps:'12', carga_ref:'4 kg cada lado', obs:'Ombros são pequenos. Começa leve.' },
+    { semana:2, series:3, reps:'12', carga_ref:'5 kg cada lado', obs:'+1kg.' },
+    { semana:3, series:3, reps:'12', carga_ref:'6 kg cada lado', obs:'+1kg.' },
+    { semana:4, series:3, reps:'12', carga_ref:'7 kg cada lado', obs:'+1kg.' },
+    { semana:5, series:3, reps:'12', carga_ref:'8 kg cada lado', obs:'+1kg.' },
+    { semana:6, series:3, reps:'12', carga_ref:'8 kg cada lado', obs:'Mantém e consolida.' },
+    { semana:7, series:3, reps:'12', carga_ref:'6 kg cada lado', obs:'Mantém.' },
+  ],
+  r_b4: [
+    { semana:1, series:3, reps:'12', carga_ref:'20 kg', obs:'Foca nas escápulas.' },
+    { semana:2, series:3, reps:'12', carga_ref:'23 kg', obs:'+3kg.' },
+    { semana:3, series:3, reps:'12', carga_ref:'25 kg', obs:'+2kg.' },
+    { semana:4, series:3, reps:'12', carga_ref:'28 kg', obs:'+3kg.' },
+    { semana:5, series:3, reps:'12', carga_ref:'30 kg', obs:'+2kg.' },
+    { semana:6, series:3, reps:'12', carga_ref:'32 kg', obs:'+2kg.' },
+    { semana:7, series:3, reps:'12', carga_ref:'25 kg', obs:'Mantém.' },
+  ],
+  r_b5: [
+    { semana:1, series:3, reps:'25 seg', carga_ref:'Peso do corpo', obs:'Começa apoiando nos joelhos se necessário.' },
+    { semana:2, series:3, reps:'30 seg', carga_ref:'Peso do corpo', obs:'+5 seg.' },
+    { semana:3, series:3, reps:'35 seg', carga_ref:'Peso do corpo', obs:'+5 seg.' },
+    { semana:4, series:3, reps:'40 seg', carga_ref:'Peso do corpo', obs:'+5 seg.' },
+    { semana:5, series:3, reps:'45 seg', carga_ref:'Peso do corpo', obs:'+5 seg.' },
+    { semana:6, series:3, reps:'50 seg', carga_ref:'Peso do corpo', obs:'+5 seg.' },
+    { semana:7, series:3, reps:'40 seg', carga_ref:'Peso do corpo', obs:'Mantém.' },
+  ],
+};
+
+// Data de início do plano da Ritieli
+const PLAN_START_RITIELI = new Date();
+PLAN_START_RITIELI.setHours(0,0,0,0);
+
+function currentWeekNumberRitieli() {
+  return Math.min(7, Math.max(1, Math.floor((new Date() - PLAN_START_RITIELI) / (7*86400000)) + 1));
+}
+
+function getProgressaoRitieli(exId) {
+  const week = currentWeekNumberRitieli();
+  const prog = PROGRESSAO_RITIELI[exId];
+  if (!prog) return null;
+  return prog.find(p => p.semana === week) || prog[prog.length - 1];
+}
+
+function isRitieli() {
+  return currentUser?.email === 'ritielihermes@gmail.com';
+}
+
+function getTreinosAtivos() {
+  return isRitieli() ? TREINOS_RITIELI : TREINOS;
+}
+
+function getWarmupAtivo(tipo) {
+  return isRitieli() ? WARMUP_RITIELI[tipo] : WARMUP[tipo];
+}
+
+function getExercicioInfo(id) {
+  if (id.startsWith('r_')) return EXERCICIOS_RITIELI[id];
+  if (id.startsWith('c_') || id.startsWith('c')) return EXERCICIOS_CASA[id];
+  return EXERCICIOS_INFO[id];
+}
+
+function getProgressaoAtiva(id) {
+  if (id.startsWith('r_')) return getProgressaoRitieli(id);
+  return getProgressao(id);
 }

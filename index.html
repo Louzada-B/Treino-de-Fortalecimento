@@ -9,7 +9,31 @@
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-<div class="app">
+
+<!-- TELA DE LOGIN -->
+<div class="login-overlay" id="login-overlay">
+  <div class="login-box">
+    <div class="login-brand">
+      <div class="brand-initials" id="login-initials">--</div>
+      <div>
+        <div class="brand-name">Plano de Treino</div>
+        <div class="brand-sub">Faça login para continuar</div>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>E-mail</label>
+      <input type="email" id="login-email" placeholder="seu@email.com">
+    </div>
+    <div class="form-group">
+      <label>Senha</label>
+      <input type="password" id="login-password" placeholder="••••••••">
+    </div>
+    <div id="login-error" class="login-error"></div>
+    <button class="btn btn-primary" id="btn-login" style="width:100%;justify-content:center">Entrar</button>
+  </div>
+</div>
+
+<div class="app" id="main-app" style="display:none">
 
   <aside class="sidebar">
     <div class="sidebar-brand">
@@ -17,6 +41,7 @@
       <div>
         <div class="brand-name">Bruno Elias</div>
         <div class="brand-sub">Plano de Fortalecimento</div>
+      <div class="user-badge" id="user-badge"></div>
       </div>
     </div>
     <div class="race-card">
@@ -50,6 +75,10 @@
     </nav>
     <div class="sidebar-footer">
       <div class="phase-indicator" id="phase-badge">Calculando fase...</div>
+      <button class="btn-logout" id="btn-logout" title="Sair">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        Sair
+      </button>
       <button class="theme-toggle" id="theme-toggle" title="Alternar tema">
         <span class="theme-icon-dark">🌙 Tema escuro</span>
         <span class="theme-icon-light">☀️ Tema claro</span>

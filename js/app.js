@@ -1,6 +1,28 @@
 document.addEventListener('DOMContentLoaded', async () => {
-  initNav();
   initTheme();
+  initLogin();
+});
+
+async function initLogin() {
+  const logado = await restoreSession();
+  if (logado) {
+    mostrarApp();
+  } else {
+    document.getElementById('login-overlay').style.display = 'flex';
+  }
+}
+
+async function mostrarApp() {
+  document.getElementById('login-overlay').style.display = 'none';
+  document.getElementById('main-app').style.display = 'grid';
+  const perfil = getPerfilUsuario();
+  if (perfil) {
+    document.getElementById('login-initials').textContent = perfil.iniciais;
+    const badge = document.getElementById('user-badge');
+    if (badge) badge.textContent = perfil.nome;
+  }
+  initNav();
+  initLogout();
   initCountdown();
   initRegistrar();
   initHistorico();
@@ -9,12 +31,44 @@ document.addEventListener('DOMContentLoaded', async () => {
   setTodayDate();
   await carregarDados();
   renderDashboard();
-});
+}
 
 async function carregarDados() {
   mostrarLoading(true);
   await fetchSessoes();
   mostrarLoading(false);
+}
+
+function initLogin() {
+  const overlay = document.getElementById('login-overlay');
+  overlay.style.display = 'none';
+
+  document.getElementById('btn-login').addEventListener('click', async () => {
+    const email    = document.getElementById('login-email').value.trim();
+    const password = document.getElementById('login-password').value;
+    const errEl    = document.getElementById('login-error');
+    errEl.textContent = '';
+
+    if (!email || !password) { errEl.textContent = 'Preencha e-mail e senha.'; return; }
+
+    const btn = document.getElementById('btn-login');
+    btn.textContent = 'Entrando...';
+    btn.disabled = true;
+
+    try {
+      await loginSupabase(email, password);
+      await mostrarApp();
+    } catch(e) {
+      errEl.textContent = 'E-mail ou senha incorretos.';
+      btn.textContent = 'Entrar';
+      btn.disabled = false;
+    }
+  });
+
+  // Enter no campo de senha
+  document.getElementById('login-password').addEventListener('keydown', e => {
+    if (e.key === 'Enter') document.getElementById('btn-login').click();
+  });
 }
 
 function mostrarLoading(show) {
@@ -29,6 +83,20 @@ function mostrarLoading(show) {
 }
 
 // ── NAV ──────────────────────────────────────────────────────
+function initLogout() {
+  const btn = document.getElementById('btn-logout');
+  if (!btn) return;
+  btn.addEventListener('click', () => {
+    if (!confirm('Deseja sair?')) return;
+    logoutLocal();
+    document.getElementById('main-app').style.display = 'none';
+    document.getElementById('login-overlay').style.display = 'flex';
+    document.getElementById('login-email').value = '';
+    document.getElementById('login-password').value = '';
+    document.getElementById('login-error').textContent = '';
+  });
+}
+
 function initNav() {
   document.querySelectorAll('.nav-btn').forEach(btn => {
     btn.addEventListener('click', () => {
@@ -113,7 +181,7 @@ function renderDashboard() {
   lEl.innerHTML = ults.map(s => {
     const exs   = s.exercicios || {};
     const lista = Object.entries(exs).filter(([k]) => !k.endsWith('_reps')).map(([k,v]) => {
-      const ex = allExercises().find(e => e.id===k); if(!ex) return '';
+      const ex = getExercicioInfo(k) || allExercises().find(e => e.id===k); if(!ex) return '';
       const resumo = Array.isArray(v) ? v.map((x,i)=>`S${i+1}:${x||'—'}`).join(' ') : (v||'—');
       return `${ex.nome}: ${resumo} ${ex.unidade}`;
     }).filter(Boolean).join(' · ');
@@ -134,6 +202,9 @@ function renderDashboard() {
 // ── TREINO & REGISTRO ────────────────────────────────────────
 function initRegistrar() {
   document.getElementById('reg-date').value = new Date().toISOString().split('T')[0];
+  // Esconde opção CASA para Ritieli
+  const casaOpt = document.querySelector('option[value="CASA"]');
+  if (casaOpt) casaOpt.style.display = isRitieli() ? 'none' : '';
   document.getElementById('reg-tipo').addEventListener('change', renderTreinoRegistro);
   renderTreinoRegistro();
 }
@@ -153,12 +224,13 @@ function renderTreinoRegistro() {
     return;
   }
 
-  const t   = TREINOS[tipo];
-  const wup = WARMUP[tipo === 'CASA' ? 'B' : tipo];
+  const treinosAtivos = isRitieli() ? TREINOS_RITIELI : TREINOS;
+  const t   = treinosAtivos[tipo];
+  const wup = getWarmupAtivo(tipo === 'CASA' ? 'B' : tipo);
   const db  = getDB();
   const ult = db.filter(x => x.tipo === tipo).slice(-1)[0];
   const ph  = currentPhase();
-  const exInfoMap = tipo === 'CASA' ? EXERCICIOS_CASA : EXERCICIOS_INFO;
+  const exInfoMap = tipo === 'CASA' ? EXERCICIOS_CASA : (isRitieli() ? EXERCICIOS_RITIELI : EXERCICIOS_INFO);
 
   let html = '';
 
@@ -181,7 +253,7 @@ function renderTreinoRegistro() {
 
   t.exercicios.forEach((id, idx) => {
     const e       = exInfoMap[id];
-    const prog    = tipo !== 'CASA' ? getProgressao(id) : null;
+    const prog    = tipo !== 'CASA' ? getProgressaoAtiva(id) : null;
     const numSer  = prog ? prog.series : (parseInt(e.series) || 3);
     const prevArr = ult?.exercicios?.[id];
     const prev    = Array.isArray(prevArr) ? prevArr : [];
@@ -268,8 +340,9 @@ async function salvarSessao() {
   if (!data) { toast('Selecione a data','error'); return; }
 
   const exs = {};
-  const exInfoMap = tipo === 'CASA' ? EXERCICIOS_CASA : EXERCICIOS_INFO;
-  const exercicios = tipo !== 'skip' ? TREINOS[tipo]?.exercicios || [] : [];
+  const exInfoMap = tipo === 'CASA' ? EXERCICIOS_CASA : (isRitieli() ? EXERCICIOS_RITIELI : EXERCICIOS_INFO);
+  const treinosAtivos = isRitieli() ? TREINOS_RITIELI : TREINOS;
+  const exercicios = tipo !== 'skip' ? treinosAtivos[tipo]?.exercicios || [] : [];
 
   exercicios.forEach(id => {
     const e      = exInfoMap[id];
@@ -330,7 +403,7 @@ function renderHistorico(filtro='todos') {
   el.innerHTML = data.map(s => {
     const exs   = s.exercicios || {};
     const lista = Object.entries(exs).filter(([k]) => !k.endsWith('_reps')).map(([k,v]) => {
-      const ex = allExercises().find(e => e.id===k); if(!ex) return '';
+      const ex = getExercicioInfo(k) || allExercises().find(e => e.id===k); if(!ex) return '';
       const resumo = Array.isArray(v) ? v.map((x,i) => `S${i+1}:${x||'—'}`).join(' ') : (v||'—');
       const ser = s.exercicios?.[k+'_reps'];
       return `${ex.nome}: ${resumo} ${ex.unidade}`;
@@ -387,7 +460,9 @@ function buildRelatorio(ini, fim) {
   const pul    = db.filter(x => x.tipo === 'skip');
   const sep    = '─'.repeat(52);
   let txt = `RELATÓRIO SEMANAL — PLANO DE FORTALECIMENTO\n${sep}\n`;
-  txt += `Atleta  : Bruno Elias Lopes Louzada\nProva   : NB42k · 21km · 12/07/2026\n`;
+  const perfil = getPerfilUsuario();
+  txt += `Atleta  : ${perfil?.nome || 'Atleta'}\n`;
+  if (!isRitieli()) txt += `Prova   : NB42k · 21km · 12/07/2026\n`;
   txt += `Período : ${new Date(ini+'T12:00:00').toLocaleDateString('pt-BR')} a ${new Date(fim+'T12:00:00').toLocaleDateString('pt-BR')}\n`;
   txt += `Gerado  : ${new Date().toLocaleDateString('pt-BR')} ${new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})}\n`;
   txt += `Dias p/ prova : ${daysUntilRace()}\nFase atual    : ${currentPhase().nome}\n${sep}\n\n`;
