@@ -43,11 +43,16 @@ async function mostrarApp() {
   document.getElementById('main-app').style.display = 'grid';
   const perfil = getPerfilUsuario();
   if (perfil) {
-    // Atualiza nome, iniciais e título da aba
-    const iniciaisEl = document.querySelector('.brand-initials');
-    if (iniciaisEl) iniciaisEl.textContent = perfil.iniciais;
-    const nomeEl = document.querySelector('.brand-name');
-    if (nomeEl) nomeEl.textContent = perfil.nome;
+    // Atualiza nome e iniciais APENAS no sidebar (não na tela de login)
+    const sidebar = document.querySelector('.sidebar');
+    if (sidebar) {
+      const iniciaisEl = sidebar.querySelector('.brand-initials');
+      if (iniciaisEl) iniciaisEl.textContent = perfil.iniciais;
+      const nomeEl = sidebar.querySelector('.brand-name');
+      if (nomeEl) nomeEl.textContent = perfil.nome;
+      const subEl = sidebar.querySelector('.brand-sub');
+      if (subEl) subEl.textContent = 'Plano de Fortalecimento';
+    }
     const badge = document.getElementById('user-badge');
     if (badge) badge.textContent = '';
     document.title = `Plano de Treino · ${perfil.nome}`;
