@@ -392,7 +392,7 @@ async function salvarSessao() {
 
   const exs = {};
   const exInfoMap = tipo === 'CASA' ? EXERCICIOS_CASA : DB_EXERCICIOS;
-  const treinosAtivos = isRitieli() ? TREINOS_RITIELI : TREINOS;
+  const treinosAtivos = getTreinosAtivos();
   const exercicios = tipo !== 'skip' ? treinosAtivos[tipo]?.exercicios || [] : [];
 
   exercicios.forEach(id => {
