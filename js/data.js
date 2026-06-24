@@ -25,10 +25,11 @@ let TREINOS_DB    = {};
 
 async function carregarTreinos() {
   try {
+    const uid = currentUser?.id;
     const [exRes, progRes, wupRes] = await Promise.all([
-      fetch(`${SUPA_URL}/rest/v1/exercicios?order=id.asc`, { headers: supaHeaders() }),
-      fetch(`${SUPA_URL}/rest/v1/progressao?order=exercicio_id.asc,semana.asc`, { headers: supaHeaders() }),
-      fetch(`${SUPA_URL}/rest/v1/warmup?order=treino.asc,tipo.asc,ordem.asc`, { headers: supaHeaders() }),
+      fetch(`${SUPA_URL}/rest/v1/exercicios?user_id=eq.${uid}&order=id.asc`, { headers: supaHeaders() }),
+      fetch(`${SUPA_URL}/rest/v1/progressao?user_id=eq.${uid}&order=exercicio_id.asc,semana.asc`, { headers: supaHeaders() }),
+      fetch(`${SUPA_URL}/rest/v1/warmup?user_id=eq.${uid}&order=treino.asc,tipo.asc,ordem.asc`, { headers: supaHeaders() }),
     ]);
 
     const exercicios = await exRes.json();
