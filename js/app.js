@@ -5,6 +5,14 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 async function initApp() {
   initLoginForm();
+  // Reseta tela de login para estado neutro
+  const iniciaisEl = document.getElementById('login-initials');
+  if (iniciaisEl) { iniciaisEl.textContent = '👤'; iniciaisEl.style.background = 'var(--bg-4)'; iniciaisEl.style.color = 'var(--text-3)'; iniciaisEl.style.fontSize = '16px'; }
+  const nomeEl = document.querySelector('.login-brand .brand-name');
+  if (nomeEl) nomeEl.textContent = 'Plano de Treino';
+  const subEl = document.querySelector('.login-brand .brand-sub');
+  if (subEl) subEl.textContent = 'Faça login para continuar';
+
   const logado = await restoreSession();
   if (logado) {
     mostrarApp();
