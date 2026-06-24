@@ -64,12 +64,14 @@ async function mostrarApp() {
   initNav();
   initLogout();
   initCountdown();
+  initModal();
+  setTodayDate();
+  mostrarLoading(true);
+  await Promise.all([carregarDados(), carregarTreinos()]);
+  mostrarLoading(false);
   initRegistrar();
   initHistorico();
   initRelatorio();
-  initModal();
-  setTodayDate();
-  await carregarDados();
   renderDashboard();
 }
 
@@ -273,13 +275,13 @@ function renderTreinoRegistro() {
     return;
   }
 
-  const treinosAtivos = isRitieli() ? TREINOS_RITIELI : TREINOS;
+  const treinosAtivos = getTreinosAtivos();
   const t   = treinosAtivos[tipo];
   const wup = getWarmupAtivo(tipo === 'CASA' ? 'B' : tipo);
   const db  = getDB();
   const ult = db.filter(x => x.tipo === tipo).slice(-1)[0];
   const ph  = isRitieli() ? { nome: 'Semana ' + currentWeekNumberRitieli(), desc: 'Progressão automática por semana' } : currentPhase();
-  const exInfoMap = tipo === 'CASA' ? EXERCICIOS_CASA : (isRitieli() ? EXERCICIOS_RITIELI : EXERCICIOS_INFO);
+  const exInfoMap = tipo === 'CASA' ? EXERCICIOS_CASA : DB_EXERCICIOS;
 
   let html = '';
 
@@ -389,7 +391,7 @@ async function salvarSessao() {
   if (!data) { toast('Selecione a data','error'); return; }
 
   const exs = {};
-  const exInfoMap = tipo === 'CASA' ? EXERCICIOS_CASA : (isRitieli() ? EXERCICIOS_RITIELI : EXERCICIOS_INFO);
+  const exInfoMap = tipo === 'CASA' ? EXERCICIOS_CASA : DB_EXERCICIOS;
   const treinosAtivos = isRitieli() ? TREINOS_RITIELI : TREINOS;
   const exercicios = tipo !== 'skip' ? treinosAtivos[tipo]?.exercicios || [] : [];
 
@@ -574,7 +576,7 @@ function initModal() {
 }
 
 function openModal(id) {
-  const e = EXERCICIOS_INFO[id]; if(!e) return;
+  const e = DB_EXERCICIOS[id] || EXERCICIOS_CASA[id]; if(!e) return;
   preencherModal(e);
 }
 
