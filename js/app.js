@@ -3,16 +3,33 @@ document.addEventListener('DOMContentLoaded', async () => {
   initApp();
 });
 
-async function initApp() {
-  initLoginForm();
-  // Reseta tela de login para estado neutro
+function resetarTelaLogin() {
   const iniciaisEl = document.getElementById('login-initials');
-  if (iniciaisEl) { iniciaisEl.textContent = '👤'; iniciaisEl.style.background = 'var(--bg-4)'; iniciaisEl.style.color = 'var(--text-3)'; iniciaisEl.style.fontSize = '16px'; }
+  if (iniciaisEl) {
+    iniciaisEl.textContent = '?';
+    iniciaisEl.style.background = 'var(--bg-4)';
+    iniciaisEl.style.color = 'var(--text-2)';
+    iniciaisEl.style.fontSize = '14px';
+  }
   const nomeEl = document.querySelector('.login-brand .brand-name');
   if (nomeEl) nomeEl.textContent = 'Plano de Treino';
   const subEl = document.querySelector('.login-brand .brand-sub');
   if (subEl) subEl.textContent = 'Faça login para continuar';
+  // Reseta botão de login
+  const btnLogin = document.getElementById('btn-login');
+  if (btnLogin) { btnLogin.textContent = 'Entrar'; btnLogin.disabled = false; }
+  // Limpa campos
+  const emailEl = document.getElementById('login-email');
+  if (emailEl) emailEl.value = '';
+  const passEl = document.getElementById('login-password');
+  if (passEl) passEl.value = '';
+  const errEl = document.getElementById('login-error');
+  if (errEl) errEl.textContent = '';
+}
 
+async function initApp() {
+  resetarTelaLogin();
+  initLoginForm();
   const logado = await restoreSession();
   if (logado) {
     mostrarApp();
@@ -108,10 +125,8 @@ function initLogout() {
     if (!confirm('Deseja sair?')) return;
     logoutLocal();
     document.getElementById('main-app').style.display = 'none';
+    resetarTelaLogin();
     document.getElementById('login-overlay').style.display = 'flex';
-    document.getElementById('login-email').value = '';
-    document.getElementById('login-password').value = '';
-    document.getElementById('login-error').textContent = '';
   });
 }
 
