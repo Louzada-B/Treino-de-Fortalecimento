@@ -240,11 +240,11 @@ async function deleteSessao(id) {
 
 // ── SEMANAS ─────────────────────────────────────────────────
 function getPlanStart() {
-  // Usa data do banco se disponível, senão fallback
+  // Usa data do banco se disponível, senão cache local, senão padrão do Bruno
   if (PLAN_START_USER) return PLAN_START_USER;
   const cached = localStorage.getItem('plan_start_cache');
   if (cached) return new Date(cached + 'T00:00:00');
-  return PLAN_START; // fallback padrão (Bruno)
+  return PLAN_START;
 }
 
 function currentWeekNumber() {
