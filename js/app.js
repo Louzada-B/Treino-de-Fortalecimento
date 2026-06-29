@@ -169,7 +169,7 @@ function initCountdown() {
   }
   const days = daysUntilRace();
   document.getElementById('days-num').textContent = days;
-  const total = Math.ceil((RACE_DATE - PLAN_START) / 86400000);
+  const total = Math.ceil((RACE_DATE - getPlanStart()) / 86400000);
   const pct = Math.min(100, Math.round((total - days) / total * 100));
   document.getElementById('countdown-bar').style.width = pct + '%';
   const ph = currentPhase();
@@ -280,7 +280,7 @@ function renderTreinoRegistro() {
   const wup = getWarmupAtivo(tipo === 'CASA' ? 'B' : tipo);
   const db  = getDB();
   const ult = db.filter(x => x.tipo === tipo).slice(-1)[0];
-  const ph  = isRitieli() ? { nome: 'Semana ' + currentWeekNumberRitieli(), desc: 'Progressão automática por semana' } : currentPhase();
+  const ph  = currentPhase();
   const exInfoMap = tipo === 'CASA' ? EXERCICIOS_CASA : DB_EXERCICIOS;
 
   let html = '';
