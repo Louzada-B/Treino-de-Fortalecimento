@@ -22,15 +22,27 @@ let DB_EXERCICIOS = {};
 let DB_PROGRESSAO = {};
 let DB_WARMUP     = {};
 let TREINOS_DB    = {};
+let PLAN_START_USER = null;
 
 async function carregarTreinos() {
   try {
     const uid = currentUser?.id;
-    const [exRes, progRes, wupRes] = await Promise.all([
+    const [exRes, progRes, wupRes, cfgRes] = await Promise.all([
       fetch(`${SUPA_URL}/rest/v1/exercicios?user_id=eq.${uid}&order=id.asc`, { headers: supaHeaders() }),
       fetch(`${SUPA_URL}/rest/v1/progressao?user_id=eq.${uid}&order=exercicio_id.asc,semana.asc`, { headers: supaHeaders() }),
       fetch(`${SUPA_URL}/rest/v1/warmup?user_id=eq.${uid}&order=treino.asc,tipo.asc,ordem.asc`, { headers: supaHeaders() }),
+      fetch(`${SUPA_URL}/rest/v1/user_config?user_id=eq.${uid}&select=plan_start`, { headers: supaHeaders() }),
     ]);
+
+    const config = await cfgRes.json();
+    if (config && config[0]?.plan_start) {
+      PLAN_START_USER = new Date(config[0].plan_start + 'T00:00:00');
+      localStorage.setItem('plan_start_cache', config[0].plan_start);
+    } else {
+      // fallback para localStorage
+      const cached = localStorage.getItem('plan_start_cache');
+      PLAN_START_USER = cached ? new Date(cached + 'T00:00:00') : new Date();
+    }
 
     const exercicios = await exRes.json();
     const progressao = await progRes.json();
@@ -227,23 +239,22 @@ async function deleteSessao(id) {
 }
 
 // ── SEMANAS ─────────────────────────────────────────────────
+function getPlanStart() {
+  // Usa data do banco se disponível, senão fallback
+  if (PLAN_START_USER) return PLAN_START_USER;
+  const cached = localStorage.getItem('plan_start_cache');
+  if (cached) return new Date(cached + 'T00:00:00');
+  return PLAN_START; // fallback padrão (Bruno)
+}
+
 function currentWeekNumber() {
-  return Math.min(7, Math.max(1, Math.floor((new Date() - PLAN_START) / (7*86400000)) + 1));
-}
-
-function getPlanStartRitieli() {
-  let stored = localStorage.getItem('ritieli_plan_start');
-  if (!stored) {
-    const hoje = new Date(); hoje.setHours(0,0,0,0);
-    stored = hoje.toISOString();
-    localStorage.setItem('ritieli_plan_start', stored);
-  }
-  return new Date(stored);
-}
-
-function currentWeekNumberRitieli() {
-  const start = getPlanStartRitieli();
+  const start = getPlanStart();
   return Math.min(7, Math.max(1, Math.floor((new Date() - start) / (7*86400000)) + 1));
+}
+
+// Mantida por compatibilidade — agora usa a mesma lógica
+function currentWeekNumberRitieli() {
+  return currentWeekNumber();
 }
 
 // ── FASE ────────────────────────────────────────────────────
