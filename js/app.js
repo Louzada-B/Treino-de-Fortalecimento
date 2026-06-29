@@ -63,12 +63,12 @@ async function mostrarApp() {
   }
   initNav();
   initLogout();
-  initCountdown();
   initModal();
   setTodayDate();
   mostrarLoading(true);
   await Promise.all([carregarDados(), carregarTreinos()]);
   mostrarLoading(false);
+  initCountdown();
   initRegistrar();
   initHistorico();
   initRelatorio();
