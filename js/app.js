@@ -197,6 +197,12 @@ function renderDashboard() {
   document.getElementById('cnt-b').textContent = cB+'/'+metaSessoes;
   document.getElementById('bar-a').style.width = Math.min(100,Math.round(cA/metaSessoes*100))+'%';
   document.getElementById('bar-b').style.width = Math.min(100,Math.round(cB/metaSessoes*100))+'%';
+  // Atualiza nomes dos grupos conforme o usuário
+  const treinosAtivos = getTreinosAtivos();
+  const labelA = document.getElementById('prog-label-a');
+  const labelB = document.getElementById('prog-label-b');
+  if (labelA) labelA.textContent = treinosAtivos['A']?.desc || 'Quadril & Glúteo';
+  if (labelB) labelB.textContent = treinosAtivos['B']?.desc || 'Core & Lombar';
   const casaBlock = document.getElementById('m-casa');
   if (casaBlock) {
     casaBlock.textContent = cCasa;
