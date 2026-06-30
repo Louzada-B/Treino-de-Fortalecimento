@@ -563,7 +563,8 @@ function gerarRelatorio(dl=true) {
   if (dl) {
     const a = document.createElement('a');
     a.href = URL.createObjectURL(new Blob([txt], {type:'text/plain;charset=utf-8'}));
-    a.download = `relatorio_bruno_${ini}_${fim}.txt`;
+    const nomeArq = (getPerfilUsuario()?.nome || 'atleta').toLowerCase().replace(/\s+/g, '_');
+    a.download = `relatorio_${nomeArq}_${ini}_${fim}.txt`;
     a.click();
     toast('Relatório baixado ✓');
   }
