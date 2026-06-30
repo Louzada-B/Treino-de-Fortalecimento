@@ -703,23 +703,34 @@ async function getSignedUrl(path) {
 }
 
 async function carregarEvolucao() {
+  console.log('PASSO 1: iniciando carregarEvolucao');
   mostrarLoading(true);
   try {
     const res = await fetch(`${SUPA_URL}/rest/v1/evolucao?order=data.desc`, { headers: supaHeaders() });
     const registros = await res.json();
+    console.log('PASSO 2: registros:', registros.length);
 
-    // Buscar fotos
     const ids = registros.map(r => r.id).join(',');
     let fotos = [];
     if (ids) {
       const fRes = await fetch(`${SUPA_URL}/rest/v1/fotos_progresso?evolucao_id=in.(${ids})`, { headers: supaHeaders() });
       fotos = await fRes.json();
+      console.log('PASSO 3: fotos encontradas:', fotos.length, JSON.stringify(fotos));
+    }
+
+    const fotosComUrl = [];
+    for (const f of fotos) {
+      const signedUrl = await getSignedUrl(f.storage_path);
+      console.log('PASSO 4: URL gerada para', f.storage_path, '=', signedUrl);
+      fotosComUrl.push({ ...f, signedUrl });
     }
 
     renderGrafico(registros);
-    renderEvolucaoList(registros, fotos);
+    renderGaleria(registros, fotosComUrl);
+    renderEvolucaoList(registros, fotosComUrl);
+    console.log('PASSO 5: concluído');
   } catch(e) {
-    console.error('Erro ao carregar evolução:', e);
+    console.error('ERRO em carregarEvolucao:', e.message);
   }
   mostrarLoading(false);
 }
