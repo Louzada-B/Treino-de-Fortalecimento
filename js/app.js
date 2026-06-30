@@ -72,6 +72,7 @@ async function mostrarApp() {
   initRegistrar();
   initHistorico();
   initRelatorio();
+  initEvolucao();
   renderDashboard();
 }
 
@@ -146,6 +147,7 @@ function initNav() {
       document.getElementById('page-' + btn.dataset.page).classList.add('active');
       if (btn.dataset.page === 'dashboard') { carregarDados().then(renderDashboard); }
       if (btn.dataset.page === 'historico') { carregarDados().then(() => renderHistorico()); }
+      if (btn.dataset.page === 'evolucao') { carregarEvolucao(); }
     });
   });
 }
@@ -618,4 +620,233 @@ function closeModal() {
 function setTodayDate() {
   const el = document.getElementById('today-date');
   if (el) el.textContent = new Date().toLocaleDateString('pt-BR', {weekday:'long', day:'2-digit', month:'long', year:'numeric'});
+}
+
+// ── EVOLUÇÃO ─────────────────────────────────────────────────
+let graficoInstancia = null;
+
+function initEvolucao() {
+  document.getElementById('btn-novo-registro').addEventListener('click', () => {
+    document.getElementById('form-evolucao').style.display = 'block';
+    document.getElementById('ev-data').value = new Date().toISOString().split('T')[0];
+    document.getElementById('btn-novo-registro').style.display = 'none';
+  });
+
+  document.getElementById('btn-cancelar-evolucao').addEventListener('click', () => {
+    document.getElementById('form-evolucao').style.display = 'none';
+    document.getElementById('btn-novo-registro').style.display = '';
+    limparFormEvolucao();
+  });
+
+  document.getElementById('btn-salvar-evolucao').addEventListener('click', salvarEvolucao);
+
+  // Preview de fotos
+  document.querySelectorAll('.foto-input').forEach(input => {
+    input.addEventListener('change', (e) => {
+      const slot = e.target.dataset.slot;
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        const preview = document.querySelector(`#slot-${slot} .foto-preview`);
+        const placeholder = document.querySelector(`#slot-${slot} .foto-placeholder`);
+        preview.src = ev.target.result;
+        preview.style.display = 'block';
+        placeholder.style.display = 'none';
+      };
+      reader.readAsDataURL(file);
+    });
+  });
+
+  // Modal de foto
+  document.getElementById('foto-modal-close').addEventListener('click', () => {
+    document.getElementById('foto-overlay').classList.remove('open');
+  });
+  document.getElementById('foto-overlay').addEventListener('click', e => {
+    if (e.target === e.currentTarget) document.getElementById('foto-overlay').classList.remove('open');
+  });
+}
+
+async function carregarEvolucao() {
+  mostrarLoading(true);
+  try {
+    const res = await fetch(`${SUPA_URL}/rest/v1/evolucao?order=data.desc`, { headers: supaHeaders() });
+    const registros = await res.json();
+
+    // Buscar fotos
+    const ids = registros.map(r => r.id).join(',');
+    let fotos = [];
+    if (ids) {
+      const fRes = await fetch(`${SUPA_URL}/rest/v1/fotos_progresso?evolucao_id=in.(${ids})`, { headers: supaHeaders() });
+      fotos = await fRes.json();
+    }
+
+    renderGrafico(registros);
+    renderEvolucaoList(registros, fotos);
+  } catch(e) {
+    console.error('Erro ao carregar evolução:', e);
+  }
+  mostrarLoading(false);
+}
+
+function renderGrafico(registros) {
+  const canvas = document.getElementById('grafico-peso');
+  const empty  = document.getElementById('grafico-empty');
+
+  const comPeso = [...registros].filter(r => r.peso).reverse();
+
+  if (!comPeso.length) {
+    canvas.style.display = 'none';
+    empty.style.display = 'block';
+    return;
+  }
+
+  canvas.style.display = 'block';
+  empty.style.display = 'none';
+
+  const labels = comPeso.map(r => new Date(r.data + 'T12:00:00').toLocaleDateString('pt-BR', { day:'2-digit', month:'2-digit' }));
+  const pesos  = comPeso.map(r => r.peso);
+
+  if (graficoInstancia) graficoInstancia.destroy();
+
+  const isDark = !document.body.classList.contains('light');
+  const textColor  = isDark ? '#9a9890' : '#5a5a56';
+  const gridColor  = isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.06)';
+  const lineColor  = isDark ? '#d4f542' : '#5a8a00';
+
+  graficoInstancia = new Chart(canvas, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [{
+        label: 'Peso (kg)',
+        data: pesos,
+        borderColor: lineColor,
+        backgroundColor: isDark ? 'rgba(212,245,66,0.08)' : 'rgba(90,138,0,0.08)',
+        borderWidth: 2,
+        pointBackgroundColor: lineColor,
+        pointRadius: 4,
+        tension: 0.3,
+        fill: true,
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: ctx => `${ctx.parsed.y} kg` } }
+      },
+      scales: {
+        x: { ticks: { color: textColor }, grid: { color: gridColor } },
+        y: {
+          ticks: { color: textColor, callback: v => v + ' kg' },
+          grid: { color: gridColor },
+        }
+      }
+    }
+  });
+}
+
+function renderEvolucaoList(registros, fotos) {
+  const el = document.getElementById('evolucao-list');
+  if (!registros.length) { el.innerHTML = '<div class="empty">Nenhum registro ainda</div>'; return; }
+
+  el.innerHTML = registros.map(r => {
+    const fotosReg = fotos.filter(f => f.evolucao_id === r.id);
+    const fotosHtml = fotosReg.map(f => {
+      const url = `${SUPA_URL}/storage/v1/object/authenticated/fotos-progresso/${f.storage_path}`;
+      return `<div class="ev-foto-thumb" onclick="verFoto('${url}')">
+        <img src="${url}" alt="foto" onerror="this.parentElement.style.display='none'">
+      </div>`;
+    }).join('');
+
+    return `<div class="ev-item">
+      <div class="ev-item-header">
+        <span class="ev-data">${new Date(r.data + 'T12:00:00').toLocaleDateString('pt-BR', { day:'2-digit', month:'long', year:'numeric' })}</span>
+        ${r.peso ? `<span class="ev-peso">${r.peso} kg</span>` : ''}
+        <button class="btn-danger" onclick="deletarEvolucao(${r.id})">✕</button>
+      </div>
+      ${r.medidas ? `<div class="ev-medidas">${r.medidas}</div>` : ''}
+      ${fotosHtml ? `<div class="ev-fotos">${fotosHtml}</div>` : ''}
+    </div>`;
+  }).join('');
+}
+
+async function salvarEvolucao() {
+  const data  = document.getElementById('ev-data').value;
+  const peso  = document.getElementById('ev-peso').value;
+  const medidas = document.getElementById('ev-medidas').value;
+
+  if (!data) { toast('Selecione a data', 'error'); return; }
+
+  mostrarLoading(true);
+
+  try {
+    // Salvar registro
+    const res = await fetch(`${SUPA_URL}/rest/v1/evolucao`, {
+      method: 'POST',
+      headers: { ...supaHeaders(), 'Prefer': 'return=representation' },
+      body: JSON.stringify({
+        user_id: currentUser.id,
+        data, peso: peso || null,
+        medidas: medidas || null,
+      })
+    });
+    const [registro] = await res.json();
+
+    // Upload das fotos
+    const inputs = document.querySelectorAll('.foto-input');
+    for (const input of inputs) {
+      if (!input.files[0]) continue;
+      const file = input.files[0];
+      const ext  = file.name.split('.').pop();
+      const path = `${currentUser.id}/${registro.id}_slot${input.dataset.slot}.${ext}`;
+
+      await fetch(`${SUPA_URL}/storage/v1/object/fotos-progresso/${path}`, {
+        method: 'POST',
+        headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + currentToken, 'Content-Type': file.type },
+        body: file,
+      });
+
+      // Salvar referência no banco
+      await fetch(`${SUPA_URL}/rest/v1/fotos_progresso`, {
+        method: 'POST',
+        headers: supaHeaders(),
+        body: JSON.stringify({ user_id: currentUser.id, evolucao_id: registro.id, storage_path: path })
+      });
+    }
+
+    toast('Registro salvo ✓');
+    document.getElementById('form-evolucao').style.display = 'none';
+    document.getElementById('btn-novo-registro').style.display = '';
+    limparFormEvolucao();
+    carregarEvolucao();
+  } catch(e) {
+    console.error(e);
+    toast('Erro ao salvar', 'error');
+  }
+
+  mostrarLoading(false);
+}
+
+async function deletarEvolucao(id) {
+  if (!confirm('Remover este registro e as fotos?')) return;
+  mostrarLoading(true);
+  await fetch(`${SUPA_URL}/rest/v1/evolucao?id=eq.${id}`, { method: 'DELETE', headers: supaHeaders() });
+  toast('Registro removido');
+  carregarEvolucao();
+  mostrarLoading(false);
+}
+
+function verFoto(url) {
+  document.getElementById('foto-modal-img').src = url;
+  document.getElementById('foto-overlay').classList.add('open');
+}
+
+function limparFormEvolucao() {
+  document.getElementById('ev-peso').value = '';
+  document.getElementById('ev-medidas').value = '';
+  document.querySelectorAll('.foto-input').forEach(i => i.value = '');
+  document.querySelectorAll('.foto-preview').forEach(i => { i.style.display='none'; i.src=''; });
+  document.querySelectorAll('.foto-placeholder').forEach(i => i.style.display='');
 }
