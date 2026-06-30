@@ -676,6 +676,18 @@ function initEvolucao() {
   });
 }
 
+async function getSignedUrl(path) {
+  try {
+    const res = await fetch(`${SUPA_URL}/storage/v1/object/sign/fotos-progresso/${path}`, {
+      method: 'POST',
+      headers: { ...supaHeaders(), 'Content-Type': 'application/json' },
+      body: JSON.stringify({ expiresIn: 3600 })
+    });
+    const data = await res.json();
+    return data.signedURL ? `${SUPA_URL}/storage/v1${data.signedURL}` : null;
+  } catch(e) { return null; }
+}
+
 async function carregarEvolucao() {
   mostrarLoading(true);
   try {
@@ -764,7 +776,8 @@ function renderEvolucaoList(registros, fotos) {
   el.innerHTML = registros.map(r => {
     const fotosReg = fotos.filter(f => f.evolucao_id === r.id);
     const fotosHtml = fotosReg.map(f => {
-      const url = `${SUPA_URL}/storage/v1/object/authenticated/fotos-progresso/${f.storage_path}`;
+      const url = f.signedUrl || '';
+      if (!url) return '';
       return `<div class="ev-foto-thumb" onclick="verFoto('${url}')">
         <img src="${url}" alt="foto" onerror="this.parentElement.style.display='none'">
       </div>`;
@@ -802,7 +815,8 @@ function renderGaleria(registros, fotos) {
     const pesoStr  = r.peso ? ` · ${r.peso}kg` : '';
 
     const fotosHtml = fotosReg.map(f => {
-      const url = `${SUPA_URL}/storage/v1/object/authenticated/fotos-progresso/${f.storage_path}`;
+      const url = f.signedUrl || '';
+      if (!url) return '';
       return `<div class="galeria-foto" onclick="verFoto('${url}')">
         <img src="${url}" alt="foto" loading="lazy" onerror="this.parentElement.style.display='none'">
       </div>`;
