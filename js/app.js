@@ -678,14 +678,23 @@ function initEvolucao() {
 
 async function getSignedUrl(path) {
   try {
-    const res = await fetch(`${SUPA_URL}/storage/v1/object/sign/fotos-progresso/${path}`, {
+    const url = `${SUPA_URL}/storage/v1/object/sign/fotos-progresso/${path}`;
+    const res = await fetch(url, {
       method: 'POST',
       headers: { ...supaHeaders(), 'Content-Type': 'application/json' },
       body: JSON.stringify({ expiresIn: 3600 })
     });
     const data = await res.json();
-    return data.signedURL ? `${SUPA_URL}/storage/v1${data.signedURL}` : null;
-  } catch(e) { return null; }
+    console.log('getSignedUrl response:', JSON.stringify(data));
+    if (data.signedURL) return `${SUPA_URL}/storage/v1${data.signedURL}`;
+    if (data.signedUrl) return `${SUPA_URL}/storage/v1${data.signedUrl}`;
+    // Tenta formato alternativo da API
+    if (data.data?.signedURL) return `${SUPA_URL}/storage/v1${data.data.signedURL}`;
+    return null;
+  } catch(e) {
+    console.error('getSignedUrl error:', e);
+    return null;
+  }
 }
 
 async function carregarEvolucao() {
