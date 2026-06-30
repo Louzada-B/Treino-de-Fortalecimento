@@ -139,15 +139,20 @@ function initLogout() {
 }
 
 function initNav() {
+  console.log('initNav executado. Botões encontrados:', document.querySelectorAll('.nav-btn').length);
   document.querySelectorAll('.nav-btn').forEach(btn => {
     btn.addEventListener('click', () => {
+      console.log('CLIQUE detectado na aba:', btn.dataset.page);
       document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
       document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
       btn.classList.add('active');
       document.getElementById('page-' + btn.dataset.page).classList.add('active');
       if (btn.dataset.page === 'dashboard') { carregarDados().then(renderDashboard); }
       if (btn.dataset.page === 'historico') { carregarDados().then(() => renderHistorico()); }
-      if (btn.dataset.page === 'evolucao') { carregarEvolucao(); }
+      if (btn.dataset.page === 'evolucao') {
+        console.log('Chamando carregarEvolucao...');
+        carregarEvolucao();
+      }
     });
   });
 }
