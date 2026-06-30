@@ -113,8 +113,11 @@ function getExercicioInfo(id) {
 function getProgressaoAtiva(id) {
   const prog = DB_PROGRESSAO[id];
   if (!prog) return null;
-  const week = isRitieli() ? currentWeekNumberRitieli() : currentWeekNumber();
-  return prog.find(p => p.semana === week) || prog[prog.length - 1];
+  const week = currentWeekNumber();
+  // Busca semana exata primeiro, depois a mais próxima anterior
+  return prog.find(p => p.semana === week)
+    || prog.filter(p => p.semana <= week).sort((a,b) => b.semana - a.semana)[0]
+    || prog[prog.length - 1];
 }
 
 function getWarmupAtivo(tipo) {
@@ -249,10 +252,11 @@ function getPlanStart() {
 
 function currentWeekNumber() {
   const start = getPlanStart();
-  return Math.min(7, Math.max(1, Math.floor((new Date() - start) / (7*86400000)) + 1));
+  const week = Math.max(1, Math.floor((new Date() - start) / (7*86400000)) + 1);
+  // Bruno tem limite de 7 (plano com prova), Ritieli é contínuo
+  return isRitieli() ? week : Math.min(7, week);
 }
 
-// Mantida por compatibilidade — agora usa a mesma lógica
 function currentWeekNumberRitieli() {
   return currentWeekNumber();
 }
