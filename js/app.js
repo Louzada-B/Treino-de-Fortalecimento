@@ -347,9 +347,13 @@ function renderTreinoRegistro() {
 
     for (let s = 0; s < numSer; s++) {
       const prevVal = prev[s] || '';
+      // Preenche reps sugeridas automaticamente
+      const repSugerida = prog
+        ? (prog.reps.split('/')[s] || prog.reps.split('–')[0] || prog.reps).replace(/[^0-9]/g, '')
+        : e.reps.replace(/[^0-9]/g, '');
       html += `<div class="series-row">
         <span class="series-num">S${s+1}</span>
-        <input type="number" class="series-reps" id="rep-${id}-${s}" placeholder="${prog ? (prog.reps.split('/')[s] || prog.reps.split('–')[0] || '—') : '—'}" min="1" step="1">
+        <input type="number" class="series-reps" id="rep-${id}-${s}" value="${repSugerida}" min="1" step="1">
         <input type="number" class="series-peso" id="peso-${id}-${s}" placeholder="${prevVal || '—'}" min="0" step="0.5">
         ${prev.length ? `<span class="series-prev">${prevVal || '—'} ${prevVal ? e.unidade : ''}</span>` : ''}
       </div>`;
