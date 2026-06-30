@@ -199,6 +199,67 @@
       </div>
     </section>
 
+    <!-- EVOLUÇÃO -->
+    <section class="page" id="page-evolucao">
+      <div class="page-header">
+        <h1>Evolução</h1>
+        <button class="btn btn-primary" id="btn-novo-registro" style="margin-left:auto">+ Novo registro</button>
+      </div>
+
+      <div class="card" id="grafico-card">
+        <div class="card-header"><h2>Peso ao longo do tempo</h2></div>
+        <canvas id="grafico-peso" height="120"></canvas>
+        <div id="grafico-empty" class="empty" style="display:none">Nenhum registro ainda</div>
+      </div>
+
+      <div class="card" id="form-evolucao" style="display:none">
+        <div class="card-header"><h2>Novo registro</h2></div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Data</label>
+            <input type="date" id="ev-data">
+          </div>
+          <div class="form-group">
+            <label>Peso (kg)</label>
+            <input type="number" id="ev-peso" placeholder="Ex: 75.5" step="0.1" min="30" max="200">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Medidas / anotações livres</label>
+          <textarea id="ev-medidas" rows="3" placeholder="Ex: cintura 80cm, quadril 100cm, braço 32cm..."></textarea>
+        </div>
+        <div class="form-group">
+          <label>Fotos (máx. 3)</label>
+          <div class="foto-upload-grid">
+            <label class="foto-slot" id="slot-0">
+              <input type="file" accept="image/*" class="foto-input" data-slot="0">
+              <div class="foto-placeholder"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg><span>Foto</span></div>
+              <img class="foto-preview" style="display:none">
+            </label>
+            <label class="foto-slot" id="slot-1">
+              <input type="file" accept="image/*" class="foto-input" data-slot="1">
+              <div class="foto-placeholder"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg><span>Foto</span></div>
+              <img class="foto-preview" style="display:none">
+            </label>
+            <label class="foto-slot" id="slot-2">
+              <input type="file" accept="image/*" class="foto-input" data-slot="2">
+              <div class="foto-placeholder"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg><span>Foto</span></div>
+              <img class="foto-preview" style="display:none">
+            </label>
+          </div>
+        </div>
+        <div class="form-actions">
+          <button class="btn btn-primary" id="btn-salvar-evolucao">Salvar registro</button>
+          <button class="btn btn-ghost" id="btn-cancelar-evolucao">Cancelar</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header"><h2>Histórico de registros</h2></div>
+        <div id="evolucao-list"></div>
+      </div>
+    </section>
+
   </main>
 </div>
 
