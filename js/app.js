@@ -632,6 +632,15 @@ function initEvolucao() {
     document.getElementById('btn-novo-registro').style.display = 'none';
   });
 
+  // Toggle galeria
+  document.getElementById('btn-toggle-galeria').addEventListener('click', () => {
+    const content = document.getElementById('galeria-content');
+    const btn     = document.getElementById('btn-toggle-galeria');
+    const aberta  = content.style.display === 'block';
+    content.style.display = aberta ? 'none' : 'block';
+    btn.textContent = aberta ? 'Expandir' : 'Recolher';
+  });
+
   document.getElementById('btn-cancelar-evolucao').addEventListener('click', () => {
     document.getElementById('form-evolucao').style.display = 'none';
     document.getElementById('btn-novo-registro').style.display = '';
@@ -749,6 +758,7 @@ function renderGrafico(registros) {
 
 function renderEvolucaoList(registros, fotos) {
   const el = document.getElementById('evolucao-list');
+  renderGaleria(registros, fotos);
   if (!registros.length) { el.innerHTML = '<div class="empty">Nenhum registro ainda</div>'; return; }
 
   el.innerHTML = registros.map(r => {
@@ -768,6 +778,39 @@ function renderEvolucaoList(registros, fotos) {
       </div>
       ${r.medidas ? `<div class="ev-medidas">${r.medidas}</div>` : ''}
       ${fotosHtml ? `<div class="ev-fotos">${fotosHtml}</div>` : ''}
+    </div>`;
+  }).join('');
+}
+
+function renderGaleria(registros, fotos) {
+  const el = document.getElementById('galeria-grid');
+  if (!el) return;
+
+  // Agrupar fotos por registro ordenado por data (crescente)
+  const registrosComFotos = [...registros]
+    .reverse()
+    .filter(r => fotos.some(f => f.evolucao_id === r.id));
+
+  if (!registrosComFotos.length) {
+    el.innerHTML = '<div class="empty">Nenhuma foto registrada ainda</div>';
+    return;
+  }
+
+  el.innerHTML = registrosComFotos.map(r => {
+    const fotosReg = fotos.filter(f => f.evolucao_id === r.id);
+    const dataFmt  = new Date(r.data + 'T12:00:00').toLocaleDateString('pt-BR', { day:'2-digit', month:'short', year:'numeric' });
+    const pesoStr  = r.peso ? ` · ${r.peso}kg` : '';
+
+    const fotosHtml = fotosReg.map(f => {
+      const url = `${SUPA_URL}/storage/v1/object/authenticated/fotos-progresso/${f.storage_path}`;
+      return `<div class="galeria-foto" onclick="verFoto('${url}')">
+        <img src="${url}" alt="foto" loading="lazy" onerror="this.parentElement.style.display='none'">
+      </div>`;
+    }).join('');
+
+    return `<div class="galeria-grupo">
+      <div class="galeria-data">${dataFmt}${pesoStr}</div>
+      <div class="galeria-fotos">${fotosHtml}</div>
     </div>`;
   }).join('');
 }
