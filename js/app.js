@@ -319,6 +319,10 @@ function renderTreinoRegistro() {
     const e       = exInfoMap[id];
     const prog    = tipo !== 'CASA' ? getProgressaoAtiva(id) : null;
     const numSer  = prog ? prog.series : (parseInt(e.series) || 3);
+
+    // Esconde exercício se series=0 (ainda não chegou a semana dele)
+    if (numSer === 0) return;
+
     const prevArr = ult?.exercicios?.[id];
     const prev    = Array.isArray(prevArr) ? prevArr : [];
 
