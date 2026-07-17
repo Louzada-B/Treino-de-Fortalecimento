@@ -1,6 +1,6 @@
 // ── CONSTANTES ─────────────────────────────────────────────
-const RACE_DATE  = new Date('2026-07-12T08:00:00');
-const PLAN_START = new Date('2026-05-25T00:00:00');
+const RACE_DATE  = new Date('2026-10-11T08:00:00');
+const PLAN_START = new Date('2026-07-14T00:00:00');
 
 // ── SUPABASE CONFIG ─────────────────────────────────────────
 const SUPA_URL = 'https://bpucodlhjnrvhxztilwp.supabase.co';
@@ -254,7 +254,7 @@ function currentWeekNumber() {
   const start = getPlanStart();
   const week = Math.max(1, Math.floor((new Date() - start) / (7*86400000)) + 1);
   // Bruno tem limite de 7 (plano com prova), Ritieli é contínuo
-  return isRitieli() ? week : Math.min(7, week);
+  return isRitieli() ? week : Math.min(13, week);
 }
 
 function currentWeekNumberRitieli() {
@@ -263,10 +263,11 @@ function currentWeekNumberRitieli() {
 
 // ── FASE ────────────────────────────────────────────────────
 const FASES = [
-  { semanas:[1,2], nome:'Fase 1 — Estabilidade e ativação', desc:'Cargas leves. Foco em técnica e ativação muscular.' },
-  { semanas:[3,4], nome:'Fase 1 — Progresso inicial',       desc:'+10–15% de carga. Mantendo qualidade de execução.' },
-  { semanas:[5,6], nome:'Fase 2 — Força funcional',         desc:'Pico de carga. Adiciona 1 série nos exercícios principais.' },
-  { semanas:[7],   nome:'Fase 3 — Descarga pré-prova',      desc:'Volume reduzido. Corpo descansa para a NB42k.' },
+  { semanas:[1,2],       nome:'Fase 1 — Reativação',        desc:'Cargas moderadas. Reativação muscular pós-prova.' },
+  { semanas:[3,4],       nome:'Fase 1 — Base',              desc:'Progressão de carga. Consolidando a base.' },
+  { semanas:[5,6,7,8,9], nome:'Fase 2 — Força funcional',  desc:'Novos exercícios. Potência e economia de corrida.' },
+  { semanas:[10,11,12],  nome:'Fase 3 — Especificidade',   desc:'Alta transferência para corrida. Foco em performance.' },
+  { semanas:[13],        nome:'Fase 3 — Descarga pré-prova', desc:'Volume reduzido. Corpo descansa para a Meia do Mercado.' },
 ];
 
 function currentPhase() {
