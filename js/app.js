@@ -281,9 +281,24 @@ function renderDashboard() {
 // ── TREINO & REGISTRO ────────────────────────────────────────
 function initRegistrar() {
   document.getElementById('reg-date').value = new Date().toISOString().split('T')[0];
-  // Esconde opção CASA para Ritieli
-  const casaOpt = document.querySelector('option[value="CASA"]');
-  if (casaOpt) casaOpt.style.display = isRitieli() ? 'none' : '';
+
+  // Preencher select com treinos do banco
+  const select = document.getElementById('reg-tipo');
+  const treinosAtivos = getTreinosAtivos();
+  // Remover opções antigas exceto skip
+  Array.from(select.options).forEach(opt => {
+    if (opt.value !== 'skip') opt.remove();
+  });
+  // Adicionar treinos do banco na ordem A, B + CASA para Bruno
+  const ordem = Object.keys(treinosAtivos).sort();
+  ordem.forEach(tipo => {
+    const t = treinosAtivos[tipo];
+    const opt = document.createElement('option');
+    opt.value = tipo;
+    opt.textContent = `${t.nome} — ${t.desc}`;
+    select.insertBefore(opt, select.querySelector('option[value="skip"]'));
+  });
+
   document.getElementById('reg-tipo').addEventListener('change', renderTreinoRegistro);
   renderTreinoRegistro();
 }
