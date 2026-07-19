@@ -186,10 +186,12 @@ function initCountdown() {
 // ── DASHBOARD ────────────────────────────────────────────────
 function renderDashboard() {
   const db     = getDB();
-  const feitos = db.filter(x => x.tipo !== 'skip');
-  const pul    = db.filter(x => x.tipo === 'skip');
+  const planStartStr3 = getPlanStart().toISOString().split('T')[0];
+  const dbFiltrado = db.filter(x => x.data >= planStartStr3);
+  const feitos = dbFiltrado.filter(x => x.tipo !== 'skip');
+  const pul    = dbFiltrado.filter(x => x.tipo === 'skip');
   const mins   = feitos.reduce((a,x) => a + (parseInt(x.duracao)||0), 0);
-  const sem    = new Set(db.map(x => Math.floor(new Date(x.data) / (7*86400000)))).size;
+  const sem    = new Set(dbFiltrado.map(x => Math.floor(new Date(x.data) / (7*86400000)))).size;
 
   document.getElementById('m-feitos').textContent  = feitos.length;
   document.getElementById('m-pulados').textContent = pul.length;
@@ -479,7 +481,8 @@ function initHistorico() {
 
 function renderHistorico(filtro='todos') {
   const el  = document.getElementById('hist-list');
-  let data  = [...getDB()].reverse();
+  const planStartStr2 = getPlanStart().toISOString().split('T')[0];
+  let data  = [...getDB()].filter(x => x.data >= planStartStr2).reverse();
   if (filtro !== 'todos') data = data.filter(x => x.tipo === filtro);
   if (!data.length) { el.innerHTML='<div class="empty">Nenhuma sessão encontrada</div>'; return; }
 
@@ -539,8 +542,10 @@ function initRelatorio() {
 
 function buildRelatorio(ini, fim) {
   const db     = getDB().filter(x => x.data>=ini && x.data<=fim);
-  const feitos = db.filter(x => x.tipo !== 'skip');
-  const pul    = db.filter(x => x.tipo === 'skip');
+  const planStartStr3 = getPlanStart().toISOString().split('T')[0];
+  const dbFiltrado = db.filter(x => x.data >= planStartStr3);
+  const feitos = dbFiltrado.filter(x => x.tipo !== 'skip');
+  const pul    = dbFiltrado.filter(x => x.tipo === 'skip');
   const sep    = '─'.repeat(52);
   let txt = `RELATÓRIO SEMANAL — PLANO DE FORTALECIMENTO\n${sep}\n`;
   const perfil = getPerfilUsuario();
