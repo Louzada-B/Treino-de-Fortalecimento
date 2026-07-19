@@ -199,17 +199,28 @@ function renderDashboard() {
   const cA = db.filter(x => x.tipo==='A').length;
   const cB = db.filter(x => x.tipo==='B').length;
   const cCasa = db.filter(x => x.tipo==='CASA').length;
-  const metaSessoes = 7;
-  document.getElementById('cnt-a').textContent = cA+'/'+metaSessoes;
-  document.getElementById('cnt-b').textContent = cB+'/'+metaSessoes;
-  document.getElementById('bar-a').style.width = Math.min(100,Math.round(cA/metaSessoes*100))+'%';
-  document.getElementById('bar-b').style.width = Math.min(100,Math.round(cB/metaSessoes*100))+'%';
+  const metaSessoes = isRitieli() ? 7 : 13;
+  // Filtrar sessões apenas do ciclo atual (após plan_start)
+  const planStart = getPlanStart();
+  const planStartStr = planStart.toISOString().split('T')[0];
+  const dbCicloAtual = db.filter(x => x.data >= planStartStr);
+  const cA_ciclo = dbCicloAtual.filter(x => x.tipo==='A').length;
+  const cB_ciclo = dbCicloAtual.filter(x => x.tipo==='B').length;
+  document.getElementById('cnt-a').textContent = cA_ciclo+'/'+metaSessoes;
+  document.getElementById('cnt-b').textContent = cB_ciclo+'/'+metaSessoes;
+  document.getElementById('bar-a').style.width = Math.min(100,Math.round(cA_ciclo/metaSessoes*100))+'%';
+  document.getElementById('bar-b').style.width = Math.min(100,Math.round(cB_ciclo/metaSessoes*100))+'%';
   // Atualiza nomes dos grupos conforme o usuário
   const treinosAtivos = getTreinosAtivos();
   const labelA = document.getElementById('prog-label-a');
   const labelB = document.getElementById('prog-label-b');
-  if (labelA) labelA.textContent = treinosAtivos['A']?.desc || 'Quadril & Glúteo';
-  if (labelB) labelB.textContent = treinosAtivos['B']?.desc || 'Core & Lombar';
+  if (labelA) labelA.textContent = treinosAtivos['A']?.desc || 'Treino A';
+  if (labelB) labelB.textContent = treinosAtivos['B']?.desc || 'Treino B';
+
+  // Atualizar subtítulo do progresso
+  const planoSub = document.getElementById('plano-sub');
+  if (planoSub && !isRitieli()) planoSub.textContent = '13 semanas · 26 sessões';
+  if (planoSub && isRitieli()) planoSub.textContent = '7 semanas · 14 sessões';
   const casaBlock = document.getElementById('m-casa');
   if (casaBlock) {
     casaBlock.textContent = cCasa;
