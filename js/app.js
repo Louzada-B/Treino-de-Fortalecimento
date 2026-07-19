@@ -230,7 +230,9 @@ function renderDashboard() {
     if (extraBlock) extraBlock.style.display = isRitieli() ? 'none' : '';
   }
   const tot = cA+cB+pul.length;
-  document.getElementById('adh-val').textContent = tot>0 ? Math.round((cA+cB)/tot*100)+'%' : '--%';
+  const feitos_ciclo = cA_ciclo + cB_ciclo;
+  const tot_ciclo = feitos_ciclo + dbFiltrado.filter(x=>x.tipo==='skip').length;
+  document.getElementById('adh-val').textContent = tot_ciclo>0 ? Math.round(feitos_ciclo/tot_ciclo*100)+'%' : '--%';
 
   // week view
   const wEl  = document.getElementById('week-view');
@@ -242,7 +244,7 @@ function renderDashboard() {
     for (let d=0;d<7;d++) {
       const dt=new Date(start); dt.setDate(dt.getDate()+d);
       const ds=dt.toISOString().split('T')[0];
-      const s=db.find(x=>x.data===ds);
+      const s=dbFiltrado.find(x=>x.data===ds);
       let cls='day-dot';
       if (s) cls += s.tipo==='A' ? ' done-a' : s.tipo==='B' ? ' done-b' : s.tipo==='CASA' ? ' done-casa' : ' skip';
       wHtml += `<div class="${cls}" title="${ds}">${days[d]}</div>`;
@@ -253,7 +255,7 @@ function renderDashboard() {
 
   // last loads
   const lEl  = document.getElementById('last-loads');
-  const ults = feitos.slice(-3).reverse();
+  const ults = feitos.slice(-3).reverse(); // feitos já vem de dbFiltrado
   if (!ults.length) { lEl.innerHTML='<div class="empty">Nenhuma sessão registrada ainda</div>'; return; }
   lEl.innerHTML = ults.map(s => {
     const exs   = s.exercicios || {};
