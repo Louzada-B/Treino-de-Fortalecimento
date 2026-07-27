@@ -401,7 +401,10 @@ function renderTreinoRegistro() {
       <div class="series-grid">`;
 
     for (let s = 0; s < numSer; s++) {
-      const prevVal = prev[s] || '';
+      const prevVal    = prev[s] || '';
+      const repSugerida = prog
+        ? (prog.reps.split('/')[s] || prog.reps.split('–')[0] || prog.reps).replace(/[^0-9]/g, '')
+        : e.reps.replace(/[^0-9]/g, '');
       html += `<div class="serie-row">
         <span class="serie-num">S${s+1}</span>
         <input type="number" class="serie-input" id="rep-${id}-${s}" value="${repSugerida}" min="1" step="1" placeholder="reps">
