@@ -114,6 +114,16 @@ function initLoginForm() {
   });
 }
 
+function toggleDica(btn) {
+  btn.classList.toggle('open');
+  const text = btn.nextElementSibling;
+  text.classList.toggle('open');
+  const isOpen = text.classList.contains('open');
+  btn.childNodes.forEach(n => {
+    if (n.nodeType === 3) n.textContent = isOpen ? ' ocultar dica' : ' ver dica';
+  });
+}
+
 function mostrarLoading(show) {
   let el = document.getElementById('loading-bar');
   if (!el) {
@@ -356,47 +366,49 @@ function renderTreinoRegistro() {
     const prevArr = ult?.exercicios?.[id];
     const prev    = Array.isArray(prevArr) ? prevArr : [];
 
+    const weekNum = isRitieli() ? currentWeekNumberRitieli() : currentWeekNumber();
     const recBadge = prog ? `<div class="rec-block">
-      <span class="rec-label">SEMANA ${isRitieli() ? currentWeekNumberRitieli() : currentWeekNumber()}</span>
-      <span class="rec-carga">${prog.carga_ref}</span>
-      <span class="rec-reps">${prog.series} séries · ${prog.reps}</span>
-      ${prog.obs ? `<span class="rec-obs">${prog.obs}</span>` : ''}
+      <div class="rec-top">
+        <span class="rec-sem">SEMANA ${weekNum}</span>
+        <span class="rec-carga">${prog.carga_ref}</span>
+        <span class="rec-meta">${prog.series} séries · ${prog.reps}</span>
+      </div>
+      ${prog.obs ? `
+        <button class="rec-dica-btn" onclick="toggleDica(this)">
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+          ver dica
+        </button>
+        <div class="rec-dica-text">${prog.obs}</div>` : ''}
     </div>` : '';
 
     const modalFn = tipo === 'CASA' ? `openModalCasa('${id}')` : `openModal('${id}')`;
 
-    html += `<div class="ex-reg-block">
-      <div class="ex-reg-header">
-        <span class="ex-reg-num">${String(idx+1).padStart(2,'0')}</span>
-        <div class="ex-reg-info">
-          <div class="ex-reg-name">${e.nome}</div>
-          <div class="ex-reg-meta">${e.musculos.join(' · ')}</div>
-        </div>
-        <div class="ex-reg-pills">
-          <span class="ex-pill highlight">${numSer} séries</span>
-          <span class="ex-pill">${prog ? prog.reps : e.reps}</span>
-          <span class="ex-pill">${e.descanso} desc.</span>
-        </div>
+    html += `<div class="ex-card">
+      <div class="ex-header">
+        <span class="ex-num">${String(idx+1).padStart(2,'0')}</span>
+        <span class="ex-name">${e.nome}</span>
         <button class="btn-info" onclick="${modalFn}">
           <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
           Como fazer
         </button>
       </div>
+      <div class="ex-pills">
+        <span class="pill accent">${numSer} séries</span>
+        <span class="pill">${prog ? prog.reps : e.reps}</span>
+        <span class="pill">${e.descanso} desc.</span>
+      </div>
       ${recBadge}
-      <div class="series-grid">
-        <div class="series-col-header"><span>Série</span><span>Reps</span><span>${e.unidade}</span>${prev.length ? '<span class="prev-label">anterior</span>' : ''}</div>`;
+      <div class="series-grid">`;
 
     for (let s = 0; s < numSer; s++) {
       const prevVal = prev[s] || '';
-      // Preenche reps sugeridas automaticamente
-      const repSugerida = prog
-        ? (prog.reps.split('/')[s] || prog.reps.split('–')[0] || prog.reps).replace(/[^0-9]/g, '')
-        : e.reps.replace(/[^0-9]/g, '');
-      html += `<div class="series-row">
-        <span class="series-num">S${s+1}</span>
-        <input type="number" class="series-reps" id="rep-${id}-${s}" value="${repSugerida}" min="1" step="1">
-        <input type="number" class="series-peso" id="peso-${id}-${s}" placeholder="${prevVal || '—'}" min="0" step="0.5">
-        ${prev.length ? `<span class="series-prev">${prevVal || '—'} ${prevVal ? e.unidade : ''}</span>` : ''}
+      html += `<div class="serie-row">
+        <span class="serie-num">S${s+1}</span>
+        <input type="number" class="serie-input" id="rep-${id}-${s}" value="${repSugerida}" min="1" step="1" placeholder="reps">
+        <div class="serie-kg-wrap">
+          <input type="number" class="serie-input" id="peso-${id}-${s}" placeholder="kg" min="0" step="0.5">
+          ${prevVal ? `<span class="serie-ant">ant: ${prevVal}</span>` : ''}
+        </div>
       </div>`;
     }
     html += `</div></div>`;
