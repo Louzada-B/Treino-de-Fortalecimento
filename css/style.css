@@ -564,3 +564,188 @@ body.light .login-box { background: var(--bg-2); }
   padding: 4px 12px;
   font-size: 12px;
 }
+
+/* ── NOVA UI REGISTRO ── */
+.ex-card {
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: 14px;
+  margin-bottom: 8px;
+  transition: border-color 0.15s;
+}
+.ex-card:focus-within { border-color: var(--border-2); }
+
+.ex-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.ex-num {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-3);
+  padding-top: 3px;
+  flex-shrink: 0;
+  width: 20px;
+}
+
+.ex-name {
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.3;
+  flex: 1;
+  color: var(--text);
+}
+
+.ex-pills {
+  display: flex;
+  gap: 5px;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+}
+
+.pill {
+  font-size: 11px;
+  font-family: var(--font-mono);
+  padding: 3px 8px;
+  border-radius: 4px;
+  background: var(--bg-3);
+  border: 1px solid var(--border);
+  color: var(--text-2);
+}
+
+.pill.accent {
+  background: rgba(212,245,66,0.1);
+  border-color: rgba(212,245,66,0.18);
+  color: var(--accent);
+}
+
+/* rec-block novo */
+.rec-block {
+  background: var(--bg-3);
+  border-radius: var(--r-sm);
+  padding: 9px 11px;
+  margin-bottom: 10px;
+}
+
+.rec-top {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.rec-sem {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  background: rgba(212,245,66,0.1);
+  color: var(--accent);
+  padding: 2px 6px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+
+.rec-carga {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+  flex: 1;
+}
+
+.rec-meta {
+  font-size: 11px;
+  color: var(--text-3);
+}
+
+.rec-dica-btn {
+  background: none;
+  border: none;
+  font-size: 11px;
+  color: var(--text-3);
+  cursor: pointer;
+  padding: 0;
+  margin-top: 6px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-family: var(--font-mono);
+  transition: color 0.15s;
+}
+.rec-dica-btn:hover { color: var(--text-2); }
+.rec-dica-btn svg { transition: transform 0.2s; }
+.rec-dica-btn.open svg { transform: rotate(180deg); }
+
+.rec-dica-text {
+  font-size: 11px;
+  color: var(--orange, #f5a623);
+  margin-top: 6px;
+  display: none;
+  line-height: 1.5;
+}
+.rec-dica-text.open { display: block; }
+
+/* séries compactas */
+.serie-row {
+  display: grid;
+  grid-template-columns: 26px 1fr 1fr;
+  gap: 6px;
+  align-items: center;
+  margin-bottom: 5px;
+}
+.serie-row:last-child { margin-bottom: 0; }
+
+.serie-num {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--accent);
+  text-align: center;
+}
+
+.serie-input {
+  background: var(--bg-3);
+  border: 1px solid var(--border-2);
+  border-radius: var(--r-sm);
+  padding: 9px 10px;
+  color: var(--text);
+  font-family: var(--font-mono);
+  font-size: 14px;
+  width: 100%;
+  text-align: center;
+  transition: border-color 0.15s, background 0.15s;
+}
+.serie-input:focus {
+  outline: none;
+  border-color: var(--accent);
+  background: rgba(212,245,66,0.04);
+}
+
+.serie-kg-wrap {
+  position: relative;
+}
+
+.serie-ant {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 10px;
+  color: var(--text-3);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s;
+  font-family: var(--font-mono);
+}
+
+.serie-kg-wrap:focus-within .serie-ant { opacity: 1; }
+.serie-kg-wrap:focus-within .serie-input { padding-right: 52px; }
+
+/* light mode */
+body.light .ex-card { background: var(--bg-2); }
+body.light .rec-block { background: var(--bg-3); }
+body.light .serie-input { background: var(--bg-3); }
