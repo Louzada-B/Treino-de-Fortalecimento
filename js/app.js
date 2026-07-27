@@ -119,9 +119,8 @@ function toggleDica(btn) {
   const text = btn.nextElementSibling;
   text.classList.toggle('open');
   const isOpen = text.classList.contains('open');
-  btn.childNodes.forEach(n => {
-    if (n.nodeType === 3) n.textContent = isOpen ? ' ocultar dica' : ' ver dica';
-  });
+  const label = btn.querySelector('.dica-label');
+  if (label) label.textContent = isOpen ? 'ocultar dica' : 'ver dica';
 }
 
 function mostrarLoading(show) {
@@ -376,7 +375,7 @@ function renderTreinoRegistro() {
       ${prog.obs ? `
         <button class="rec-dica-btn" onclick="toggleDica(this)">
           <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
-          ver dica
+          <span class="dica-label">ver dica</span>
         </button>
         <div class="rec-dica-text">${prog.obs}</div>` : ''}
     </div>` : '';
