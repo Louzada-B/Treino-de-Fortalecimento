@@ -370,7 +370,6 @@ function renderTreinoRegistro() {
       <div class="rec-top">
         <span class="rec-sem">SEMANA ${weekNum}</span>
         <span class="rec-carga">${prog.carga_ref}</span>
-        <span class="rec-meta">${prog.series} séries · ${prog.reps}</span>
       </div>
       ${prog.obs ? `
         <button class="rec-dica-btn" onclick="toggleDica(this)">
