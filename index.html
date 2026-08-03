@@ -6,6 +6,13 @@
   <title>Plano de Treino · Bruno Elias</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="manifest" href="/manifest.json">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Treino">
+  <meta name="theme-color" content="#1a1a18">
+  <link rel="apple-touch-icon" href="/icons/icon-192.png">
   <link rel="stylesheet" href="css/style.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
 </head>
@@ -31,6 +38,10 @@
     </div>
     <div id="login-error" class="login-error"></div>
     <button class="btn btn-primary" id="btn-login" style="width:100%;justify-content:center">Entrar</button>
+    <button class="btn-install" id="btn-install" style="display:none" onclick="instalarApp()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      Instalar app
+    </button>
   </div>
 </div>
 
@@ -353,5 +364,40 @@
 
 <script src="js/data.js?v=2"></script>
 <script src="js/app.js?v=2"></script>
+<script>
+  // Registrar Service Worker
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/service-worker.js')
+        .then(r => console.log('SW registrado:', r.scope))
+        .catch(e => console.log('SW erro:', e));
+    });
+  }
+
+  // Capturar evento de instalação PWA
+  let deferredPrompt;
+  window.addEventListener('beforeinstallprompt', e => {
+    e.preventDefault();
+    deferredPrompt = e;
+    const btn = document.getElementById('btn-install');
+    if (btn) btn.style.display = 'flex';
+  });
+
+  window.addEventListener('appinstalled', () => {
+    const btn = document.getElementById('btn-install');
+    if (btn) btn.style.display = 'none';
+    deferredPrompt = null;
+  });
+
+  function instalarApp() {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    deferredPrompt.userChoice.then(result => {
+      deferredPrompt = null;
+      const btn = document.getElementById('btn-install');
+      if (btn) btn.style.display = 'none';
+    });
+  }
+</script>
 </body>
 </html>
