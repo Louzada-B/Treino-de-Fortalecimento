@@ -114,6 +114,11 @@ function initLoginForm() {
   });
 }
 
+function hasAnyCarga(v) {
+  const vals = Array.isArray(v) ? v : [v];
+  return vals.some(x => x && x !== '' && x !== '0' && x !== '—');
+}
+
 function toggleDica(btn) {
   btn.classList.toggle('open');
   const text = btn.nextElementSibling;
@@ -270,6 +275,7 @@ function renderDashboard() {
     const exs   = s.exercicios || {};
     const lista = Object.entries(exs).filter(([k]) => !k.endsWith('_reps')).map(([k,v]) => {
       const ex = getExercicioInfo(k) || allExercises().find(e => e.id===k); if(!ex) return '';
+      if (!hasAnyCarga(v)) return '';
       const resumo = Array.isArray(v) ? v.map((x,i)=>`S${i+1}:${x||'—'}`).join(' ') : (v||'—');
       return `${ex.nome}: ${resumo} ${ex.unidade}`;
     }).filter(Boolean).join(' · ');
@@ -520,8 +526,8 @@ function renderHistorico(filtro='todos') {
     const exs   = s.exercicios || {};
     const lista = Object.entries(exs).filter(([k]) => !k.endsWith('_reps')).map(([k,v]) => {
       const ex = getExercicioInfo(k) || allExercises().find(e => e.id===k); if(!ex) return '';
+      if (!hasAnyCarga(v)) return '';
       const resumo = Array.isArray(v) ? v.map((x,i) => `S${i+1}:${x||'—'}`).join(' ') : (v||'—');
-      const ser = s.exercicios?.[k+'_reps'];
       return `${ex.nome}: ${resumo} ${ex.unidade}`;
     }).filter(Boolean).join(' · ');
 
@@ -601,6 +607,7 @@ function buildRelatorio(ini, fim) {
       const exs = s.exercicios || {};
       Object.entries(exs).filter(([k]) => !k.endsWith('_reps')).forEach(([k,v]) => {
         const ex = allExercises().find(e => e.id===k); if(!ex) return;
+        if (!hasAnyCarga(v)) return;
         const repsArr = exs[k+'_reps'] || [];
         if (Array.isArray(v)) {
           txt += `  · ${ex.nome}:\n`;
