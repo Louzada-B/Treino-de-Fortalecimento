@@ -141,6 +141,28 @@ function mostrarLoading(show) {
 
 // ── NAV ──────────────────────────────────────────────────────
 function initLogout() {
+  // Conectar botão mobile de logout
+  const mobileBtnLogout = document.getElementById('mobile-logout');
+  if (mobileBtnLogout) {
+    mobileBtnLogout.addEventListener('click', () => {
+      if (!confirm('Deseja sair?')) return;
+      logoutLocal();
+      document.getElementById('main-app').style.display = 'none';
+      resetarTelaLogin();
+      document.getElementById('login-overlay').style.display = 'flex';
+    });
+  }
+
+  // Conectar botão mobile de tema
+  const mobileBtnTheme = document.getElementById('mobile-theme-toggle');
+  if (mobileBtnTheme) {
+    mobileBtnTheme.addEventListener('click', () => {
+      const isLight = document.body.classList.toggle('light');
+      localStorage.setItem('runner_tema', isLight ? 'light' : 'dark');
+      mobileBtnTheme.querySelector('svg').style.stroke = isLight ? 'var(--accent)' : '';
+    });
+  }
+
   const btn = document.getElementById('btn-logout');
   if (!btn) return;
   btn.addEventListener('click', () => {
