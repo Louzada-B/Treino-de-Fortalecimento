@@ -320,9 +320,10 @@ body.light .fill-b { background: var(--green); }
   .app { grid-template-columns: 1fr; }
   .sidebar { height: auto; position: static; }
   .race-card { display: none; }
-  .sidebar-footer { display: flex; flex-direction: row; gap: 8px; padding: 8px 0 0; border-top: 1px solid var(--border); margin-top: 4px; }
-  .sidebar-footer .btn-logout { margin-bottom: 0; flex: 1; }
-  .sidebar-footer .theme-toggle { flex-shrink: 0; }
+  .sidebar-footer { display: flex !important; flex-direction: row !important; flex-wrap: wrap; gap: 6px; padding: 8px 0 0; border-top: 1px solid var(--border); margin-top: 4px; }
+  .sidebar-footer .phase-indicator { display: none; }
+  .sidebar-footer .btn-logout { margin-bottom: 0; flex: 1; min-width: 80px; }
+  .sidebar-footer .theme-toggle { flex: 1; min-width: 80px; text-align: center; }
   .nav { flex-direction: row; flex-wrap: wrap; }
   .main { padding: 1rem; }
   .metrics-grid { grid-template-columns: repeat(2,1fr); }
