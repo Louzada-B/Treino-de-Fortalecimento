@@ -608,7 +608,7 @@ function buildRelatorio(ini, fim) {
   let txt = `RELATÓRIO SEMANAL — PLANO DE FORTALECIMENTO\n${sep}\n`;
   const perfil = getPerfilUsuario();
   txt += `Atleta  : ${perfil?.nome || 'Atleta'}\n`;
-  if (!isRitieli()) txt += `Prova   : NB42k · 21km · 12/07/2026\n`;
+  if (!isRitieli()) txt += `Prova   : Meia do Mercado · 21km · 11/10/2026\n`;
   txt += `Período : ${new Date(ini+'T12:00:00').toLocaleDateString('pt-BR')} a ${new Date(fim+'T12:00:00').toLocaleDateString('pt-BR')}\n`;
   txt += `Gerado  : ${new Date().toLocaleDateString('pt-BR')} ${new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})}\n`;
   txt += `Dias p/ prova : ${daysUntilRace()}\nFase atual    : ${currentPhase().nome}\n${sep}\n\n`;
